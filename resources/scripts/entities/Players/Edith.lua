@@ -62,7 +62,7 @@ function Edith:EdithJumpHandler(player)
 	if player:IsDead() then mod.RemoveEdithTarget(player); playerData.isJumping = false return end
 
 	local isMoving = mod.IsEdithTargetMoving(player)
-	local isKeyStompPressed = mod.IsKeyStompPressed(player)
+	local isKeyStompPressed = mod:IsKeyStompTriggered(player)
 	local hasMarked = player:HasCollectible(CollectibleType.COLLECTIBLE_MARKED)
 	local isShooting = mod:IsPlayerShooting(player)
 	local jumpData = JumpLib:GetData(player)
@@ -389,3 +389,26 @@ mod:AddCallback(ModCallbacks.MC_PRE_PLAYER_TAKE_DMG, function(_, player, _, flag
     if not mod.IsEdith(player, false) then return end
 	if mod.HasBitFlags(flags, DamageFlag.DAMAGE_ACID) or (roomType ~= RoomType.ROOM_SACRIFICE and mod.HasBitFlags(flags, DamageFlag.DAMAGE_SPIKES)) then return false end
 end)
+
+local NonTriggerAnimPickupVar = {
+	[PickupVariant.PICKUP_COLLECTIBLE] = true,
+	[PickupVariant.PICKUP_TRINKET] = true,
+	[PickupVariant.PICKUP_BROKEN_SHOVEL] = true,
+	[PickupVariant.PICKUP_SHOPITEM] = true,
+	[PickupVariant.PICKUP_PILL] = true,
+	[PickupVariant.PICKUP_TAROTCARD] = true,
+}
+
+---@param player EntityPlayer
+---@param collider Entity
+function Edith:OnPickupColl(player, collider)
+	local pickup = collider:ToPickup()
+	local sprite = player:GetSprite()
+
+	if not pickup then return end
+	if not NonTriggerAnimPickupVar[pickup.Variant] then return end
+	if not sprite:IsPlaying("BigJumpFinish") then return end 
+
+	sprite:SetFrame(11)
+end
+mod:AddCallback(ModCallbacks.MC_PRE_PLAYER_COLLISION, Edith.OnPickupColl)
