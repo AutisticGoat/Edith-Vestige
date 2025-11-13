@@ -1,0 +1,16 @@
+<players root="gfx/characters/costumes/" portraitroot="gfx/ui/stage/" nameimageroot="gfx/ui/boss/">
+		 
+	<player 
+		name="Edith​​​​​​" 
+		skin="characterEdith.png" 
+		armor="6"
+		nameimage="EdithName.png" 
+		portrait="EdithPortrait.png" 
+		skinColor="0" 
+		costumeSuffix="editha"
+		healthtype="1"
+		birthright="Super Stomps"
+		items="Salt Shaker"
+		noshake="true"
+	/>
+</players>

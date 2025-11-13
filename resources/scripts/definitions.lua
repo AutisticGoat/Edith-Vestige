@@ -1,0 +1,179 @@
+---@diagnostic disable: inject-field
+local EdithPlayer = Isaac.GetPlayerTypeByName("Edith​​​​​​", false)
+local edithJumpTag = "edithRebuilt_EdithJump"
+
+EdithVestige.Enums = {
+	PlayerType = {
+		PLAYER_EDITH = EdithPlayer,
+	},
+	CollectibleType = {
+		-- Edith Items
+		COLLECTIBLE_SALTSHAKER = Isaac.GetItemIdByName("Salt Shaker"),
+	},
+	NullItemID = {
+		ID_EDITH_SCARF = Isaac.GetCostumeIdByPath("gfx/characters/EdithHood.anm2"),
+	},
+	EffectVariant = {
+		EFFECT_EDITH_TARGET = Isaac.GetEntityVariantByName("Edith Target"),
+	},
+	Callbacks = {
+		-- Called everytime a Perfect Parry is triggered (player: EntityPlayer, entity: Entity)
+		---* player `EntityPlayer`
+		---* entity `Entity`
+		PERFECT_PARRY = "EdithRebuilt_PERFECT_PARRY",
+
+		-- Called everytime an enemy is killed by a Perfect Parry is triggered
+		---* player `EntityPlayer`
+		---* entity `Entity`
+		PERFECT_PARRY_KILL = "EdithRebuilt_PERFECT_PARRY_KILL",
+
+		-- Called everytime Edith does an offensive stomp and damages at least `One Enemy
+		---* player `EntityPlayer`
+		---* entity `Entity`
+		OFFENSIVE_STOMP = "EdithRebuilt_OFFENSIVE_STOMP",
+
+		-- Called everytime Edith's Target (or Tainted Edith's arrow) changes its design		
+		TARGET_SPRITE_CHANGE = "EdithRebuilt_TARGET_SPRITE_CHANGE",
+		 -- Called everytime Tainted Edith's trail sprite is changed	
+		TRAIL_SPRITE_CHANGE = "EdithRebuilt_TRAIL_SPRITE_CHANGE",
+	},
+	SubTypes = {
+		SALT_CREEP = Isaac.GetEntitySubTypeByName("Salt Creep"),
+	},
+	SoundEffect = {
+		SOUND_EDITH_STOMP = Isaac.GetSoundIdByName("Edith Stomp"),
+		SOUND_EDITH_STOMP_WATER = Isaac.GetSoundIdByName("Edith Stomp Water"),
+	},
+	Utils = {
+		Game = Game(),
+		SFX = SFXManager(),
+		RNG = RNG(),
+		Level = Game():GetLevel(),
+	},
+	Tables = {
+		OverrideActions = {
+			[ButtonAction.ACTION_LEFT] = 0,
+			[ButtonAction.ACTION_RIGHT] = 0,
+			[ButtonAction.ACTION_UP] = 0,
+			[ButtonAction.ACTION_DOWN] = 0,
+		},
+		FrameLimits = {
+			["Idle"] = 12,
+			["Blink"] = 2
+		},
+		BloodytearVariants = {
+			[TearVariant.BLOOD] = true,
+			[TearVariant.GLAUCOMA_BLOOD] = true,
+			[TearVariant.CUPID_BLOOD] = true,
+			[TearVariant.PUPULA_BLOOD] = true,
+			[TearVariant.GODS_FLESH_BLOOD] = true,
+			[TearVariant.NAIL_BLOOD] = true,
+		},
+		BackdropColors = {
+			[BackdropType.CORPSE3] = Color(0.75, 0.2, 0.2),
+			[BackdropType.DROSS] = Color(92/255, 81/255, 71/255),
+			[BackdropType.BLUE_WOMB] = Color(0, 0, 0, 1, 0.3, 0.4, 0.6),
+			[BackdropType.CORPSE] = Color(0, 0, 0, 1, 0.62, 0.65, 0.62),
+			[BackdropType.CORPSE2] = Color(0, 0, 0, 1, 0.55, 0.57, 0.55),
+		},
+		Runes = {
+			Card.RUNE_HAGALAZ,
+			Card.RUNE_JERA,
+			Card.RUNE_EHWAZ,
+			Card.RUNE_DAGAZ,
+			Card.RUNE_ANSUZ,
+			Card.RUNE_PERTHRO,
+			Card.RUNE_BERKANO,
+			Card.RUNE_ALGIZ,
+			Card.RUNE_BLANK,
+			Card.RUNE_BLACK,
+		},
+		JumpTags = {
+			EdithJump = edithJumpTag,
+
+		},
+		JumpFlags = {
+			EdithJump = (JumpLib.Flags.DISABLE_SHOOTING_INPUT | JumpLib.Flags.DISABLE_LASER_FOLLOW | JumpLib.Flags.DISABLE_BOMB_INPUT | JumpLib.Flags.FAMILIAR_FOLLOW_FOLLOWERS | JumpLib.Flags.FAMILIAR_FOLLOW_ORBITALS | JumpLib.Flags.FAMILIAR_FOLLOW_TEARCOPYING),
+			TEdithHop = (JumpLib.Flags.COLLISION_GRID | JumpLib.Flags.COLLISION_ENTITY | JumpLib.Flags.OVERWRITABLE | JumpLib.Flags.DISABLE_COOL_BOMBS | JumpLib.Flags.IGNORE_CONFIG_OVERRIDE | JumpLib.Flags.FAMILIAR_FOLLOW_ORBITALS | JumpLib.Flags.DAMAGE_CUSTOM),
+			TEdithJump = (JumpLib.Flags.COLLISION_GRID | JumpLib.Flags.OVERWRITABLE | JumpLib.Flags.DISABLE_COOL_BOMBS | JumpLib.Flags.IGNORE_CONFIG_OVERRIDE | JumpLib.Flags.FAMILIAR_FOLLOW_ORBITALS),
+		},
+		MovementBasedActives = {
+			[CollectibleType.COLLECTIBLE_SUPLEX] = true,
+			[CollectibleType.COLLECTIBLE_PONY] = true,
+			[CollectibleType.COLLECTIBLE_WHITE_PONY] = true,
+		},
+		JumpParams = {
+			EdithJump = {
+				tag = edithJumpTag,
+				type = EntityType.ENTITY_PLAYER,
+				player = EdithPlayer,
+			},
+		},
+		GridEntTypes = {
+			[GridEntityType.GRID_TRAPDOOR] = true,
+			[GridEntityType.GRID_STAIRS] = true,
+			[GridEntityType.GRID_GRAVITY] = true,
+		},
+		Chap4Backdrops = {
+			[BackdropType.WOMB] = true,
+			[BackdropType.UTERO] = true,
+			[BackdropType.SCARRED_WOMB] = true,
+			[BackdropType.BLUE_WOMB] = true,
+			[BackdropType.CORPSE] = true,
+			[BackdropType.CORPSE2] = true,
+			[BackdropType.CORPSE3] = true,
+			[BackdropType.MORTIS] = true, --- Who knows
+		},
+		BlacklistedPickupVariants = { -- Pickups blacklisted from use on `Entity:ForceCollide()`
+			[PickupVariant.PICKUP_PILL] = true,
+			[PickupVariant.PICKUP_TAROTCARD] = true,
+			[PickupVariant.PICKUP_TRINKET] = true,
+			[PickupVariant.PICKUP_COLLECTIBLE] = true,
+			[PickupVariant.PICKUP_BROKEN_SHOVEL] = true,
+		},
+		PhysicsFamiliar = {
+			[FamiliarVariant.SAMSONS_CHAINS] = true,
+			[FamiliarVariant.PUNCHING_BAG] = true,
+			[FamiliarVariant.CUBE_BABY] = true,
+		},
+		CooldownSounds = {
+			[1] = {
+				SoundID = SoundEffect.SOUND_STONE_IMPACT,
+				Pitch = 1.2,
+			},
+			[2] = {
+				SoundID = SoundEffect.SOUND_BEEP,
+				Pitch = 0.8
+			} 
+		},
+		RemoveTargetItems = {
+			[CollectibleType.COLLECTIBLE_ESAU_JR] = true,
+			[CollectibleType.COLLECTIBLE_CLICKER] = true,
+		},
+		DisableLandFeedbackGrids = {
+			[GridEntityType.GRID_TRAPDOOR] = true,
+			[GridEntityType.GRID_STAIRS] = true,
+			[GridEntityType.GRID_GRAVITY] = true,
+		},
+	},
+	Misc = {
+		TearPath = "gfx/tears/",
+		HeadAdjustVec = Vector.Zero,
+		TargetPath = "gfx/effects/EdithTarget/effect_000_edith_target",
+		ArrowPath = "gfx/effects/TaintedEdithArrow/effect_000_tainted_edith",
+		TrailPath = "gfx/effects/TaintedEdithTrail/trail",
+		TargetLineColor = Color(1, 1, 1),
+		SaltShakerDist = Vector(0, 60),
+		ColorDefault = Color(1, 1, 1, 1),
+		JumpReadyColor = Color(1, 1, 1, 1, 0.5, 0.5, 0.5),
+		PerfectParryRadius = 12,
+		ImpreciseParryRadius = 35,
+		BurntSaltColor = Color(0.3, 0.3, 0.3),
+		ChargeBarleftVector = Vector(-8, 10),
+		ChargeBarcenterVector = Vector(0, 10),
+		ChargeBarrightVector = Vector(8, 10),
+		PaprikaColor = Color(0.8, 0.2, 0),
+		ParryPartitions = EntityPartition.ENEMY | EntityPartition.BULLET | EntityPartition.TEAR, --[[@as EntityPartition]]
+		NewProjectilFlags = ProjectileFlags.HIT_ENEMIES | ProjectileFlags.CANT_HIT_PLAYER,
+	},
+}
