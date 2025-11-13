@@ -40,3 +40,47 @@ Equipo:
 
 Contribuidores
 - SrKalaka: Diseño del Sprite de Edith
+
+
+WARNING: THIS MOD REQUIRES REPENTOGON TO WORK
+WARNING: THIS MOD IS A DEMO OF THE UPCOMING MOD EDITH: REBUILT
+
+A classic, refined and improved, rediscover the cut character from Antibirth: Edith
+
+Edith: Vestige is a mod that takes the main mechanics of Edith (Antibirth), makes some changes, and leaves it as a more presentable version of the character, originally intended as a challenge for the upcoming mod Edith: Rebuilt, Vestige
+
+- Jump control: Have more control! Jumping is now assigned to a button instead of being automatic (RELEASE key)
+- Tears only: Edith will be unable to use other types of attacks (Lasers, swords, knives, all that stuff is gone!)
+- Interaction with stats: Improve your stomp with stats! Now certain stomp parameters will depend on your stats, increase your area of effect with range or thrust force with shotspeed, among others
+- Stomp synergies: Take advantage of various objects to use powerful synergies with stomps
+- Powered by JumpLib and REPENTOGON: The mod uses JumpLib for jump handling and REPENTOGON for features that would otherwise be impossible to add
+
+Miscellaneous Quality of Life details and changes:
+-
+
+Possible questions:
+
+What is Edith: Rebuilt?
+Edith: Rebuilt is the original project from which Edith: Vestige derives, a mod loaded with more content, a Tainted counterpart, and much more work.
+
+Why did you decide to make this mod?
+While working on the challenge, I noticed that the way the character was controlled was somewhere between the rework done for Rebuilt and the work done in Antibirth, so I decided to do this as an experiment.
+
+When will Edith: Rebuilt be released?
+There is no exact date. Edith: Rebuilt requires specific features from REPENTOGON+, which is currently in development and is not recommended for use if you are not a modder. Once it is released, I will announce it.
+
+Will you remove Edith: Vestige from the workshop when Edith: Rebuilt is released?
+I haven't decided on that yet, but I will probably keep both versions uploaded.
+
+Will Vestige continue to be a challenge for Edith: Rebuilt?
+Yes, the challenge will remain the same and will have the same gameplay as this mod.
+
+Edith: Rebuilt can be tested right now by downloading it from its GitHub repository. Please note that it requires Repentance+ and REPENTOGON to function properly.
+
+Thank you for playing the mod, I hope you like it!
+
+Team:
+- Kotry: Direction and main programming
+
+Contributors
+- SrKalaka: Edith Sprite Design
