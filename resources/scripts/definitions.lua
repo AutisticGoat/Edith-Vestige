@@ -1,13 +1,13 @@
 ---@diagnostic disable: inject-field
 local EdithPlayer = Isaac.GetPlayerTypeByName("Edith​​​​​​", false)
-local edithJumpTag = "edithRebuilt_EdithJump"
+local edithJumpTag = "edithVestige_EdithJump"
+local game = Game()
 
 EdithVestige.Enums = {
 	PlayerType = {
 		PLAYER_EDITH = EdithPlayer,
 	},
 	CollectibleType = {
-		-- Edith Items
 		COLLECTIBLE_SALTSHAKER = Isaac.GetItemIdByName("Salt Shaker"),
 	},
 	NullItemID = {
@@ -17,25 +17,10 @@ EdithVestige.Enums = {
 		EFFECT_EDITH_TARGET = Isaac.GetEntityVariantByName("Edith Target"),
 	},
 	Callbacks = {
-		-- Called everytime a Perfect Parry is triggered (player: EntityPlayer, entity: Entity)
-		---* player `EntityPlayer`
-		---* entity `Entity`
-		PERFECT_PARRY = "EdithRebuilt_PERFECT_PARRY",
-
-		-- Called everytime an enemy is killed by a Perfect Parry is triggered
-		---* player `EntityPlayer`
-		---* entity `Entity`
-		PERFECT_PARRY_KILL = "EdithRebuilt_PERFECT_PARRY_KILL",
-
 		-- Called everytime Edith does an offensive stomp and damages at least `One Enemy
 		---* player `EntityPlayer`
 		---* entity `Entity`
-		OFFENSIVE_STOMP = "EdithRebuilt_OFFENSIVE_STOMP",
-
-		-- Called everytime Edith's Target (or Tainted Edith's arrow) changes its design		
-		TARGET_SPRITE_CHANGE = "EdithRebuilt_TARGET_SPRITE_CHANGE",
-		 -- Called everytime Tainted Edith's trail sprite is changed	
-		TRAIL_SPRITE_CHANGE = "EdithRebuilt_TRAIL_SPRITE_CHANGE",
+		OFFENSIVE_STOMP = "EdithVestige_OFFENSIVE_STOMP",
 	},
 	SubTypes = {
 		SALT_CREEP = Isaac.GetEntitySubTypeByName("Salt Creep"),
@@ -43,12 +28,13 @@ EdithVestige.Enums = {
 	SoundEffect = {
 		SOUND_EDITH_STOMP = Isaac.GetSoundIdByName("Edith Stomp"),
 		SOUND_EDITH_STOMP_WATER = Isaac.GetSoundIdByName("Edith Stomp Water"),
+		SOUND_SALT_SHAKER = Isaac.GetSoundIdByName("Salt Shaker"),
 	},
 	Utils = {
-		Game = Game(),
+		Game = game,
 		SFX = SFXManager(),
 		RNG = RNG(),
-		Level = Game():GetLevel(),
+		Level = game:GetLevel(),
 	},
 	Tables = {
 		OverrideActions = {
@@ -56,6 +42,15 @@ EdithVestige.Enums = {
 			[ButtonAction.ACTION_RIGHT] = 0,
 			[ButtonAction.ACTION_UP] = 0,
 			[ButtonAction.ACTION_DOWN] = 0,
+		},
+		OverrideWeapons = {
+			[WeaponType.WEAPON_BRIMSTONE] = true,
+			[WeaponType.WEAPON_KNIFE] = true,
+			[WeaponType.WEAPON_LASER] = true,
+			[WeaponType.WEAPON_BOMBS] = true,
+			[WeaponType.WEAPON_ROCKETS] = true,
+			[WeaponType.WEAPON_TECH_X] = true,
+			[WeaponType.WEAPON_SPIRIT_SWORD] = true
 		},
 		FrameLimits = {
 			["Idle"] = 12,
@@ -94,8 +89,6 @@ EdithVestige.Enums = {
 		},
 		JumpFlags = {
 			EdithJump = (JumpLib.Flags.DISABLE_SHOOTING_INPUT | JumpLib.Flags.DISABLE_LASER_FOLLOW | JumpLib.Flags.DISABLE_BOMB_INPUT | JumpLib.Flags.FAMILIAR_FOLLOW_FOLLOWERS | JumpLib.Flags.FAMILIAR_FOLLOW_ORBITALS | JumpLib.Flags.FAMILIAR_FOLLOW_TEARCOPYING),
-			TEdithHop = (JumpLib.Flags.COLLISION_GRID | JumpLib.Flags.COLLISION_ENTITY | JumpLib.Flags.OVERWRITABLE | JumpLib.Flags.DISABLE_COOL_BOMBS | JumpLib.Flags.IGNORE_CONFIG_OVERRIDE | JumpLib.Flags.FAMILIAR_FOLLOW_ORBITALS | JumpLib.Flags.DAMAGE_CUSTOM),
-			TEdithJump = (JumpLib.Flags.COLLISION_GRID | JumpLib.Flags.OVERWRITABLE | JumpLib.Flags.DISABLE_COOL_BOMBS | JumpLib.Flags.IGNORE_CONFIG_OVERRIDE | JumpLib.Flags.FAMILIAR_FOLLOW_ORBITALS),
 		},
 		MovementBasedActives = {
 			[CollectibleType.COLLECTIBLE_SUPLEX] = true,
@@ -159,21 +152,8 @@ EdithVestige.Enums = {
 	Misc = {
 		TearPath = "gfx/tears/",
 		HeadAdjustVec = Vector.Zero,
-		TargetPath = "gfx/effects/EdithTarget/effect_000_edith_target",
-		ArrowPath = "gfx/effects/TaintedEdithArrow/effect_000_tainted_edith",
-		TrailPath = "gfx/effects/TaintedEdithTrail/trail",
-		TargetLineColor = Color(1, 1, 1),
 		SaltShakerDist = Vector(0, 60),
 		ColorDefault = Color(1, 1, 1, 1),
 		JumpReadyColor = Color(1, 1, 1, 1, 0.5, 0.5, 0.5),
-		PerfectParryRadius = 12,
-		ImpreciseParryRadius = 35,
-		BurntSaltColor = Color(0.3, 0.3, 0.3),
-		ChargeBarleftVector = Vector(-8, 10),
-		ChargeBarcenterVector = Vector(0, 10),
-		ChargeBarrightVector = Vector(8, 10),
-		PaprikaColor = Color(0.8, 0.2, 0),
-		ParryPartitions = EntityPartition.ENEMY | EntityPartition.BULLET | EntityPartition.TEAR, --[[@as EntityPartition]]
-		NewProjectilFlags = ProjectileFlags.HIT_ENEMIES | ProjectileFlags.CANT_HIT_PLAYER,
 	},
 }

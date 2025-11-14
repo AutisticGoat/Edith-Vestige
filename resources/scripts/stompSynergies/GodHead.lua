@@ -4,7 +4,6 @@ local EdithJump = require("resources.scripts.stompSynergies.JumpData")
 
 ---@param player EntityPlayer
 function mod:GodHeadStomp(player)
-	if funcs.DefensiveStomp(player) then return end
 	if not player:HasCollectible(CollectibleType.COLLECTIBLE_GODHEAD) then return end		
 	
     local godTear = player:FireTear(player.Position, Vector.Zero)

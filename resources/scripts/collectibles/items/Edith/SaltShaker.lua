@@ -4,11 +4,9 @@ local items = enums.CollectibleType
 local sounds = enums.SoundEffect
 local misc = enums.Misc
 local utils = enums.Utils
-local saltTypes = enums.SaltTypes
 local sfx = utils.SFX
 local SaltQuantity = 14
 local degree = 360 / SaltQuantity
-local data = mod.getData
 local SaltShaker = {}
 
 ---@param rng RNG
@@ -19,20 +17,14 @@ function SaltShaker:UseSaltShaker(_, rng, player, flag)
 	if mod.HasBitFlags(flag, UseFlag.USE_CARBATTERY) then return end
     local hasCarBattery = player:HasCollectible(CollectibleType.COLLECTIBLE_CAR_BATTERY) 
 	local playerPos = player.Position
-	local spawnType = mod.IsJudasWithBirthright(player) and saltTypes.SALT_SHAKER_JUDAS or saltTypes.SALT_SHAKER
-	local color = spawnType == saltTypes.SALT_SHAKER_JUDAS and Color(1, 0.4, 0.15) or nil
 
 	for _, entity in ipairs(Isaac.FindByType(EntityType.ENTITY_EFFECT, EffectVariant.PLAYER_CREEP_RED, enums.SubTypes.SALT_CREEP)) do
-		if not mod.When(data(entity).SpawnType, DespawnSaltTypes, false) then goto continue end
 		entity:ToEffect():SetTimeout(1)
-	    ::continue::
 	end
 
 	for i = 1, SaltQuantity do	
-		mod:SpawnSaltCreep(player, playerPos + misc.SaltShakerDist:Rotated(degree * i), 0, hasCarBattery and 12 or 6, 1, 4.5, spawnType, false, true, color)
+		mod:SpawnSaltCreep(player, playerPos + misc.SaltShakerDist:Rotated(degree * i), 0, hasCarBattery and 12 or 6, 1, 4.5)
 	end
-
-	data(player).SpawnCentralPosition = player.Position
 
 	sfx:Play(sounds.SOUND_SALT_SHAKER, 2, 0, false, mod.RandomFloat(rng, 0.9, 1.1), 0)
 	return true

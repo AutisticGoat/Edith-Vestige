@@ -4,7 +4,6 @@ local EdithJump = require("resources.scripts.stompSynergies.JumpData")
 
 ---@param player EntityPlayer
 function mod:SwordStomp(player)
-	if funcs.DefensiveStomp(player) then return end
     if not player:HasCollectible(CollectibleType.COLLECTIBLE_SPIRIT_SWORD) then return end
 
     local knife = player:FireKnife(

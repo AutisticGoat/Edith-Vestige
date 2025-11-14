@@ -9,12 +9,6 @@ local teleportPoints = {
 	Vector(595, 272),
 }
 
----@param effect EntityEffect
-local function IsAnyEdithTarget(effect)
-    local var = effect.Variant
-    return var == Vars.EFFECT_EDITH_TARGET or var == Vars.EFFECT_EDITH_B_TARGET
-end
-
 local function interpolateVector2D(vectorA, vectorB, t)
 	local minT = (1 - t)
     return Vector(minT * vectorA.X + t * vectorB.X, minT * vectorA.Y + t * vectorB.Y)
@@ -29,32 +23,26 @@ local function EdithTargetManagement(effect, player)
 	local effectPos = effect.Position
 	local room = game:GetRoom()
 
-	if mod.IsKeyStompPressed(player) then
-		effect:GetSprite():Play("Blink")
-	end
-
 	room:GetCamera():SetFocusPosition(interpolateVector2D(playerPos, effectPos, 0.6))
 
-	if room:GetType() == RoomType.ROOM_DUNGEON then
-		for _, v in pairs(teleportPoints) do
-			if (effectPos - v):Length() > 20 then break end
-			player.Position = effectPos + effect.Velocity:Normalized():Resized(25)
-		end
+	if room:GetType() ~= RoomType.ROOM_DUNGEON then return end
+	for _, v in pairs(teleportPoints) do
+		if (effectPos - v):Length() > 20 then break end
+		player.Position = effectPos + effect.Velocity:Normalized():Resized(25)
 	end
 end
 
 ---@param effect EntityEffect
 mod:AddCallback(ModCallbacks.MC_POST_EFFECT_UPDATE, function(_, effect)
-	if not IsAnyEdithTarget(effect) then return end
 	local player = effect.SpawnerEntity:ToPlayer()
 
     if not player then return end
-	mod:TargetDoorManager(effect, player, effect.Variant == Vars.EFFECT_EDITH_TARGET and 28 or 20)
+	mod:TargetDoorManager(effect, player, 28)
     EdithTargetManagement(effect, player)
-end)
+end, Vars.EFFECT_EDITH_TARGET)
 
 ---@param effect EntityEffect
 mod:AddCallback(ModCallbacks.MC_PRE_EFFECT_RENDER, function(_, effect)
-	effect.Color:SetTint(1, 0, 0, 1)
+	effect.Color = Color(1, 0, 0, 1)
 	if game:GetRoom():GetRenderMode() == RenderMode.RENDER_WATER_REFLECT then return false end
-end)
+end, Vars.EFFECT_EDITH_TARGET)

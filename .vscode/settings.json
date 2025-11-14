@@ -2,5 +2,7 @@
     "files.associations": {
         "*.embeddedhtml": "html",
         ".anm2": "xml"
-    }
+    },
+    "editor.wordWrap": "on",
+    "Lua.codeLens.enable": true
 }

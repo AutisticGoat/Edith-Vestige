@@ -5,7 +5,6 @@ local EdithJump = require("resources.scripts.stompSynergies.JumpData")
 ---@param player EntityPlayer
 function mod:TechnologyLand(player)
     if not player:HasCollectible(CollectibleType.COLLECTIBLE_TECHNOLOGY) then return end    
-    if funcs.DefensiveStomp(player) then return end
 
     local hasBirthright = player:HasCollectible(CollectibleType.COLLECTIBLE_BIRTHRIGHT)
     local damageMult = hasBirthright and 1.25 or 1

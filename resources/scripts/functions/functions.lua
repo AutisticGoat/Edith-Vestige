@@ -94,26 +94,9 @@ local MortisBackdrop = {
 
 ---Checks if player is Edith
 ---@param player EntityPlayer
----@param tainted boolean set it to `true` to check if player is Tainted Edith
 ---@return boolean
-function EdithVestige.IsEdith(player, tainted)
-	return player:GetPlayerType() == (tainted and players.PLAYER_EDITH_B or players.PLAYER_EDITH)
-end
-
----Checks if any player is Edith
----@param player EntityPlayer
----@return boolean
-function EdithVestige:IsAnyEdith(player)
-	return mod.IsEdith(player, true) or mod.IsEdith(player, false)
-end
-	
----Changes `Entity` velocity so now it goes to `Target`'s Position, `strenght` determines how fast it'll go
----@param Entity Entity
----@param Target Entity
----@param strenght number
----@return Vector
-function EdithVestige.ChangeVelToTarget(Entity, Target, strenght)
-	return ((Entity.Position - Target.Position) * -1):Normalized():Resized(strenght)
+function EdithVestige.IsEdith(player)
+	return player:GetPlayerType() == (players.PLAYER_EDITH)
 end
 
 ---Checks if Edith's target is moving
@@ -192,20 +175,6 @@ function EdithVestige.IsJudasWithBirthright(player)
 	return player:GetPlayerType() == PlayerType.PLAYER_JUDAS and mod.PlayerHasBirthright(player)
 end
 
----Checks if player is pressing Edith's jump button
----@param player EntityPlayer
----@return boolean
-function EdithVestige.IsKeyStompPressed(player)
-	local k_stomp =
-		Input.IsButtonPressed(Keyboard.KEY_Z, player.ControllerIndex) or
-        Input.IsButtonPressed(Keyboard.KEY_LEFT_SHIFT, player.ControllerIndex) or
-        Input.IsButtonPressed(Keyboard.KEY_RIGHT_SHIFT, player.ControllerIndex) or
-		Input.IsButtonPressed(Keyboard.KEY_RIGHT_CONTROL, player.ControllerIndex) or
-        Input.IsActionPressed(ButtonAction.ACTION_DROP, player.ControllerIndex)
-		
-	return k_stomp
-end
-
 ---Checks if player triggered Edith's jump action
 ---@param player EntityPlayer
 ---@return boolean
@@ -220,24 +189,6 @@ function EdithVestige:IsKeyStompTriggered(player)
 	return k_stomp
 end
 
----@param player EntityPlayer
----@return boolean
-function EdithVestige.IsDefensiveStomp(player)
-	if not mod.IsEdith(player, false) then return false end
-	return data(player).IsDefensiveStomp 
-end
-
----Helper tears stat manager function
----@param firedelay number
----@param val number
----@param mult? boolean
----@return number
-function EdithVestige.tearsUp(firedelay, val, mult)
-    local currentTears = 30 / (firedelay + 1)
-    local newTears = mult and (currentTears * val) or currentTears + val
-    return math.max((30 / newTears) - 1, -0.75)
-end
-
 ---Helper range stat manager function
 ---@param range number
 ---@param val number
@@ -246,13 +197,6 @@ function EdithVestige.rangeUp(range, val)
     local currentRange = range / 40.0
     local newRange = currentRange + val
     return math.max(1.0, newRange) * 40.0
-end
-
----Returns player's range stat as portrayed in Game's stat HUD
----@param player EntityPlayer
----@return number
-function EdithVestige.GetPlayerRange(player)
-	return player.TearRange / 40
 end
 
 ---Helper function to directly change `entity`'s color
@@ -289,47 +233,6 @@ function EdithVestige:DestroyGrid(entity, radius)
 	end
 end
 
-local LINE_SPRITE = Sprite("gfx/TinyBug.anm2", true)
-local MAX_POINTS = 360
-local ANGLE_SEPARATION = 360 / MAX_POINTS
-
-LINE_SPRITE:SetFrame("Dead", 0)
-
----@param pos Vector
----@param AreaSize number
----@param AreaColor Color
-function EdithVestige.RenderAreaOfEffect(pos, AreaSize, AreaColor) -- Took from Melee lib, tweaked a little bit
-	if game:GetRoom():GetRenderMode() == RenderMode.RENDER_WATER_REFLECT then return end
-
-    local renderPosition = Isaac.WorldToScreen(pos) - game.ScreenShakeOffset
-    local hitboxSize = AreaSize
-    local offset = Isaac.WorldToScreen(pos + Vector(0, hitboxSize)) - renderPosition + Vector(0, 1)
-    local offset2 = offset:Rotated(ANGLE_SEPARATION)
-    local segmentSize = offset:Distance(offset2)
-    LINE_SPRITE.Scale = Vector(segmentSize * (2 / 3), 0.5)
-    for i = 1, MAX_POINTS do
-        local angle = ANGLE_SEPARATION * i
-        LINE_SPRITE.Rotation = angle
-        LINE_SPRITE.Offset = offset:Rotated(angle)
-		LINE_SPRITE.Color = AreaColor or misc.ColorDefault
-        LINE_SPRITE:Render(renderPosition)
-    end
-end
-
----Returns a random rune (Used for Geode trinket)
----@param rng RNG
----@return integer
-function EdithVestige.GetRandomRune(rng)
-	return mod.When(rng:RandomInt(1, #tables.Runes), tables.Runes)
-end
-
----Returns a chance based boolean
----@param rng? RNG -- if `nil`, the function will use Mod's `RNG` object instead
----@param chance? number if `nil`, default chance will be 0.5 (50%)
-function EdithVestige.RandomBoolean(rng, chance)
-	return (rng or utils.RNG):RandomFloat() <= (chance or 0.5)
-end
-
 ---Helper function for a better management of random floats, allowing to use min and max values, like `math.random()` and `RNG:RandomInt()`
 ---@param rng? RNG if `nil`, the function will use Mod's `RNG` object instead
 ---@param min number
@@ -354,7 +257,6 @@ function EdithVestige:TargetDoorManager(effect, player, triggerDistance)
 	local room = game:GetRoom()
 	local effectPos = effect.Position
 	local roomName = level:GetCurrentRoomDesc().Data.Name
-	local isTainted = mod.IsEdith(player, true) or false
 	local MirrorRoomCheck = roomName == "Mirror Room" and player:HasInstantDeathCurse()
 	local playerHasPhoto = (player:HasCollectible(CollectibleType.COLLECTIBLE_POLAROID) or player:HasCollectible(CollectibleType.COLLECTIBLE_NEGATIVE))
 
@@ -377,7 +279,7 @@ function EdithVestige:TargetDoorManager(effect, player, triggerDistance)
 
 		if door:IsOpen() or MirrorRoomCheck or ShouldMoveToStrangeDoorPos then
 			player.Position = doorPos
-			mod.RemoveEdithTarget(player, isTainted)
+			mod.RemoveEdithTarget(player)
 		elseif StrangeDoorCheck then
 			if not playerHasPhoto then goto Break end
 			door:TryUnlock(player)
@@ -407,82 +309,6 @@ function EdithVestige.ManageEdithWeapons(player)
 	Isaac.DestroyWeapon(weapon)
 	player:EnableWeaponType(WeaponType.WEAPON_TEARS, true)
 	player:SetWeapon(newWeapon, 1)	
-end
-
----@param player EntityPlayer
----@param jumpData JumpData
-function EdithVestige.CustomDropBehavior(player, jumpData)
-	if not mod.IsEdith(player, false) then return end
-	local playerData = data(player)
-	playerData.ShouldDrop = playerData.ShouldDrop or false
-
-	if playerData.ShouldDrop == false then
-	---@diagnostic disable-next-line: undefined-field
-		player:SetActionHoldDrop(0)
-	end
-
-	if not jumpData.Jumping then playerData.ShouldDrop = false return end
-	if not Input.IsActionTriggered(ButtonAction.ACTION_DROP, player.ControllerIndex) then return end
-	if not (jumpData.Height > 10 and not JumpLib:IsFalling(player)) then return end
-	playerData.ShouldDrop = true
-	---@diagnostic disable-next-line: undefined-field
-	player:SetActionHoldDrop(119)
-end
-
----@param player EntityPlayer
-function EdithVestige.DashItemBehavior(player)
-	local edithTarget = mod.GetEdithTarget(player)
-
-	if not edithTarget then return end
-	local effects = player:GetEffects()
-	local hasMarsEffect = effects:HasCollectibleEffect(CollectibleType.COLLECTIBLE_MARS)
-	local hasAnyPonyEffect = effects:HasCollectibleEffect(CollectibleType.COLLECTIBLE_PONY) or effects:HasCollectibleEffect(CollectibleType.COLLECTIBLE_WHITE_PONY)
-	local direction = mod.GetEdithTargetDirection(player, false)
-	local distance = mod.GetEdithTargetDistance(player)
-
-	if hasMarsEffect or hasAnyPonyEffect then
-		mod.EdithDash(player, direction, distance, 50)
-	end
-
-	if player.Velocity:Length() <= 3 then
-		effects:RemoveCollectibleEffect(CollectibleType.COLLECTIBLE_PONY, -1)
-		effects:RemoveCollectibleEffect(CollectibleType.COLLECTIBLE_WHITE_PONY, -1)
-	end
-
-	local primaryActiveSlot = player:GetActiveItemDesc(ActiveSlot.SLOT_PRIMARY)
-	local activeItem = primaryActiveSlot.Item
-
-	if activeItem == 0 then return end
-
-	local isMoveBasedActive = tables.MovementBasedActives[activeItem] or false
-	local itemConfig = Isaac.GetItemConfig():GetCollectible(activeItem)
-	local maxItemCharge = itemConfig.MaxCharges
-	local currentItemCharge = primaryActiveSlot.Charge
-	local itemBatteryCharge = primaryActiveSlot.BatteryCharge
-	local totalItemCharge = currentItemCharge + itemBatteryCharge
-	local usedCharge = totalItemCharge - maxItemCharge
-
-	if not isMoveBasedActive or totalItemCharge < maxItemCharge then return end
-	if not Input.IsActionTriggered(ButtonAction.ACTION_ITEM, player.ControllerIndex) then return end
-
-	mod.EdithDash(player, direction, distance, 50)
-	player:UseActiveItem(activeItem)
-	player:SetActiveCharge(usedCharge, ActiveSlot.SLOT_PRIMARY)
-end
-
----@param player EntityPlayer
-function EdithVestige.FallBehavior(player)
-	local distance = mod.GetEdithTargetDistance(player)
-	local jumpdata = JumpLib:GetData(player)
-
-	if mod.IsDefensiveStomp(player) then return end
-	if not (player.CanFly and ((mod.IsEdithTargetMoving(player) and distance <= 50) or distance <= 5)) then return end
-
-	player:MultiplyFriction(isMovingTarget and 1 or 0.2)
-
-	if not (jumpdata.Fallspeed < 8.5 and JumpLib:IsFalling(player)) then return end
-	sfx:Play(SoundEffect.SOUND_SHELLGAME)
-	JumpLib:SetSpeed(player, 10 + (jumpdata.Height / 10))
 end
 
 local backdropColors = tables.BackdropColors
@@ -589,23 +415,22 @@ mod:AddCallback(ModCallbacks.MC_POST_TEAR_DEATH, tearCol)
 
 ---@param tear EntityTear
 ---@param IsBlood boolean
----@param isTainted boolean
-local function doEdithTear(tear, IsBlood, isTainted)
+local function doEdithTear(tear, IsBlood)
 	local player = mod:GetPlayerFromTear(tear)
 
 	if not player then return end
 
 	local tearSizeMult = player:HasCollectible(CollectibleType.COLLECTIBLE_SOY_MILK) and 1 or 0.85
 	local tearData = data(tear)
-	local path = (isTainted and (IsBlood and "burnt_blood_salt_tears" or "burnt_salt_tears") or (IsBlood and "blood_salt_tears" or "salt_tears"))
+	local path = (IsBlood and "blood_salt_tears" or "salt_tears")
 	local newSprite = misc.TearPath .. path .. ".png"
 
 	tear.Scale = tear.Scale * tearSizeMult
 
 	tear:ChangeVariant(TearVariant.ROCK)
 	
-	tearData.ShatterSprite = (isTainted and (IsBlood and "burnt_blood_salt_shatter" or "burnt_salt_shatter") or (IsBlood and "blood_salt_shatter" or "salt_shatter"))
-	tearData.SaltGibsSprite = (isTainted and (IsBlood and "burnt_blood_salt_gibs" or "burnt_salt_gibs") or (IsBlood and "blood_salt_gibs" or "salt_gibs"))
+	tearData.ShatterSprite = (IsBlood and "blood_salt_shatter" or "salt_shatter")
+	tearData.SaltGibsSprite = (IsBlood and "blood_salt_gibs" or "salt_gibs")
 	
 	tear:GetSprite():ReplaceSpritesheet(0, newSprite, true)
 	tear.Color = player.Color
@@ -614,10 +439,9 @@ end
 
 ---Forces tears to look like salt tears. `tainted` argument sets tears for Tainted Edith
 ---@param tear EntityTear
----@param tainted? boolean
-function EdithVestige.ForceSaltTear(tear, tainted)
+function EdithVestige.ForceSaltTear(tear)
 	local IsBloodTear = mod.When(tear.Variant, tables.BloodytearVariants, false)
-	doEdithTear(tear, IsBloodTear, tainted)
+	doEdithTear(tear, IsBloodTear)
 end
 
 ---Converts seconds to game update frames
@@ -625,11 +449,6 @@ end
 ---@return number
 function EdithVestige:SecondsToFrames(seconds)
 	return math.ceil(seconds * 30)
-end
-
-function EdithVestige.PepperEnemy(ent, player, frames)
-	ent:AddSlowing(EntityRef(player), frames, 0.5, Color(0.5, 0.5, 0.5))
-	data(ent).PepperFrames = frames
 end
 
 ---Custom black powder spawn (Used for Edith's black powder stomp synergy)
@@ -694,21 +513,6 @@ end
 ---@return integer
 function EdithVestige.exp(number, coeffcient, power)
     return number ~= 0 and coeffcient * number ^ (power - 1) or 0
-end
-
----Logaritmic function
----@param x number
----@param base number
----@return number?
-function EdithVestige.Log(x, base)
-    if x <= 0 or base <= 1 then
-        return nil
-    end
-
-    local logNatural = math.log(x)
-    local logBase = math.log(base)
-    
-    return logNatural / logBase
 end
 
 ---Changes `player`'s ANM2 file
@@ -924,19 +728,6 @@ function EdithVestige.IsEnemy(ent)
 	(ent.Type == EntityType.ENTITY_GEMINI and ent.Variant == 12) -- this for blighted ovum little sperm like shit i hate it fuuuck
 end
 
----Helper function to find out how large a bomb explosion is based on the damage inflicted.
----@param damage number
----@return number
-function EdithVestige.GetBombRadiusFromDamage(damage)
-    if damage > 175 then
-        return 105
-    elseif damage <= 140 then
-        return 75
-    else
-        return 90
-    end
-end
-
 ---Checks if are in Chapter 4 (Womb, Utero, Scarred Womb, Corpse)
 ---@return boolean
 function EdithVestige:isChap4()
@@ -946,18 +737,24 @@ function EdithVestige:isChap4()
 	return mod.When(backdrop, tables.Chap4Backdrops, false)
 end
 
----Returns player's tears stat as portrayed in game's stats HUD
----@param p EntityPlayer
----@return number
-function EdithVestige.GetTPS(p)
-    return mod.Round(30 / (p.MaxFireDelay + 1), 2)
-end
-
 local KeyRequiredChests = {
 	[PickupVariant.PICKUP_LOCKEDCHEST] = true,
 	[PickupVariant.PICKUP_ETERNALCHEST] = true,
 	[PickupVariant.PICKUP_OLDCHEST] = true,
 	[PickupVariant.PICKUP_MEGACHEST] = true,
+}
+
+local Chests = {
+	[PickupVariant.PICKUP_CHEST] = true,
+	[PickupVariant.PICKUP_BOMBCHEST] = true,
+	[PickupVariant.PICKUP_SPIKEDCHEST] = true,
+	[PickupVariant.PICKUP_ETERNALCHEST] = true,
+	[PickupVariant.PICKUP_MIMICCHEST] = true,
+	[PickupVariant.PICKUP_OLDCHEST] = true,
+	[PickupVariant.PICKUP_WOODENCHEST] = true,
+	[PickupVariant.PICKUP_MEGACHEST] = true,
+	[PickupVariant.PICKUP_HAUNTEDCHEST] = true,
+	[PickupVariant.PICKUP_LOCKEDCHEST] = true,
 }
 
 ---@param pickup EntityPickup
@@ -966,16 +763,56 @@ function IsKeyRequiredChest(pickup)
 	return mod.When(pickup.Variant, KeyRequiredChests, false)
 end
 
+---@param pickup EntityPickup
+---@return boolean
+local function IsChest(pickup)
+	return mod.When(pickup.Variant, Chests, false)
+end
+
 ---@param player EntityPlayer
----@return unknown
+---@return boolean
 local function ShouldConsumeKeys(player)
 	return (player:GetNumKeys() > 0 and not player:HasGoldenKey())
 end
 
-function mod:PiUpdate(pickup)
-	print(pickup:GetSprite():GetAnimation())
+---@param player EntityPlayer
+---@return boolean
+local function CanOpenChests(player)
+	return(player:GetNumKeys() > 0 or player:HasGoldenKey())
 end
-mod:AddCallback(ModCallbacks.MC_POST_PICKUP_UPDATE, mod.PiUpdate)
+
+local function chestKeyManager(parent, pickup)
+	if not IsChest(pickup) then return end
+	if not IsKeyRequiredChest(pickup) then  return end
+	if not CanOpenChests(parent) then return end
+	if pickup:GetSprite():GetAnimation() == "Open" then return end
+
+	if ShouldConsumeKeys(parent) then
+		parent:AddKeys(-1)
+	end
+
+	if pickup.Variant ~= PickupVariant.PICKUP_MEGACHEST then
+		pickup:TryOpenChest(parent)
+		return
+	end
+
+	local rng = pickup:GetDropRNG()
+	local piData = data(pickup)
+
+	piData.OpenAttempts = 0
+	piData.OpenAttempts = piData.OpenAttempts + 1
+
+	local attempt = piData.OpenAttempts
+	local openRoll = rng:RandomInt(attempt, 7)
+
+	if openRoll == 7 then
+		pickup:TryOpenChest(parent)
+	else 
+		piData.CollOpen = true
+		sfx:Play(SoundEffect.SOUND_UNLOCK00)
+		pickup:GetSprite():Play("UseKey")
+	end
+end
 
 ---@param ent Entity
 ---@param parent EntityPlayer
@@ -986,7 +823,7 @@ function EdithVestige.HandleEntityInteraction(ent, parent, knockback)
         [EntityType.ENTITY_TEAR] = function()
             local tear = ent:ToTear()
             if not tear then return end
-			if mod.IsEdith(parent, true) then return end
+			if mod.IsEdith(parent) then return end
 
 			mod.BoostTear(tear, 25, 1.5)
         end,
@@ -999,7 +836,7 @@ function EdithVestige.HandleEntityInteraction(ent, parent, knockback)
             mod.TriggerPush(ent, parent, knockback, 3, false)
         end,
         [EntityType.ENTITY_BOMB] = function()
-			if mod.IsEdith(parent, true) then return end
+			if mod.IsEdith(parent) then return end
             mod.TriggerPush(ent, parent, knockback, 3, false)
         end,
         [EntityType.ENTITY_PICKUP] = function()
@@ -1010,43 +847,31 @@ function EdithVestige.HandleEntityInteraction(ent, parent, knockback)
             if isFlavorTextPickup or IsLuckyPenny then return end
 			parent:ForceCollide(pickup, true)
 
-			if not mod.IsEdith(parent, false) then return end
+			chestKeyManager(parent, pickup)
 
-			if IsKeyRequiredChest(pickup) then
-				if var == PickupVariant.PICKUP_MEGACHEST then
-					local rng = pickup:GetDropRNG()
-					local piData = data(pickup)
-
-					piData.OpenAttempts = 0
-					piData.OpenAttempts = piData.OpenAttempts + 1
-
-					local attempt = piData.OpenAttempts
-					local openRoll = rng:RandomInt(attempt, 7)
-
-					if openRoll == 7 then
-						pickup:TryOpenChest(parent)
-					else
-						pickup:GetSprite():Play("UseKey")
-					end
-				else
-					pickup:TryOpenChest(parent)
-				end
-
-				if ShouldConsumeKeys(parent) then
-					parent:AddKeys(-1)
-				end
-			end
-
-            if not (var == PickupVariant.PICKUP_BOMBCHEST and mod.IsEdith(parent, false)) then return end
-			pickup:TryOpenChest(parent)
+            -- if not (var == PickupVariant.PICKUP_BOMBCHEST and mod.IsEdith(parent)) then return end
+			-- pickup:TryOpenChest(parent)
         end,
         [EntityType.ENTITY_SHOPKEEPER] = function()
-			if mod.IsEdith(parent, true) then return end
             ent:Kill()
         end,
     }
 	mod.WhenEval(ent.Type, stompBehavior)
 end
+
+---@param pickup EntityPickup
+mod:AddCallback(ModCallbacks.MC_POST_PICKUP_UPDATE, function(_, pickup)
+	local piData = data(pickup)
+	local sprite = pickup:GetSprite()
+
+	-- print(sprite:GetAnimation())
+	-- print(pickup.State)
+
+	if not piData.CollOpen then return end
+	if not sprite:IsFinished("UseKey") then return end
+
+	sprite:Play("Idle")
+end, PickupVariant.PICKUP_MEGACHEST)
 
 local damageFlags = DamageFlag.DAMAGE_CRUSH | DamageFlag.DAMAGE_IGNORE_ARMOR
 
@@ -1117,13 +942,6 @@ function EdithVestige:EdithStomp(parent, radius, damage, knockback, breakGrid)
 		sfx:Play(SoundEffect.SOUND_MEATY_DEATHS)
 
 		if ent.HitPoints > damage then goto Break end
-
-		if BirthcakeRebaked and parent:HasTrinket(BirthcakeRebaked.Birthcake.ID) and isSalted then
-			BCRRNG = parent:GetTrinketRNG(BirthcakeRebaked.Birthcake.ID)
-			for _ = 1, BCRRNG:RandomInt(3, 7) do
-				parent:FireTear(parent.Position, RandomVector():Resized(15))
-			end
-		end
 		-- mod.AddExtraGore(ent, parent)
 		::Break::
 	end
@@ -1164,19 +982,6 @@ end
 ---@param impactDamage? boolean
 function EdithVestige.TriggerPush(pushed, pusher, strength, duration, impactDamage)
 	local dir = ((pusher.Position - pushed.Position) * -1):Resized(strength)
-	pushed:AddKnockback(EntityRef(pusher), dir, duration, impactDamage or false)
-end
-
----The same as `EdithVestige.TriggerPush` but this accepts a `Vector` for positions instead
----@param pusher Entity
----@param pushed Entity
----@param pushedPos Vector
----@param pusherPos Vector
----@param strength number
----@param duration integer
----@param impactDamage? boolean
-function EdithVestige.TriggerPushPos(pusher, pushed, pushedPos, pusherPos, strength, duration, impactDamage)
-	local dir = ((pusherPos - pushedPos) * -1):Resized(strength)
 	pushed:AddKnockback(EntityRef(pusher), dir, duration, impactDamage or false)
 end
 
@@ -1226,21 +1031,6 @@ function EdithVestige.Round(n, decimalPlaces)
 	return math.floor(n * mult + 0.5) / mult
 end
 
---- Helper function to clamp a number into a range (from Library of Isaac).
----@param a number
----@param min number
----@param max number
----@return number
-function EdithVestige.Clamp(a, min, max)
-	if min > max then
-		local temp = min
-		min = max
-		max = temp
-	end
-
-	return math.max(min, math.min(a, max))
-end
-
 --- Helper function to convert a given amount of angle degrees into the corresponding `Direction` enum (From Library of Isaac, tweaked a bit)
 ---@param angleDegrees number
 ---@return Direction
@@ -1262,14 +1052,6 @@ end
 ---@return Direction
 function EdithVestige.VectorToDirection(vector)
 	return mod.AngleToDirection(vector:GetAngleDegrees())
-end
-
----Helper function to check if two vectors are exactly equal (from Library).
----@param v1 Vector
----@param v2 Vector
----@return boolean
-function EdithVestige.VectorEquals(v1, v2)
-    return v1.X == v2.X and v1.Y == v1.Y
 end
 
 ---Makes the tear to receive a boost, increasing its speed and damage

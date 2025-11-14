@@ -4,7 +4,6 @@ local EdithJump = require("resources.scripts.stompSynergies.JumpData")
 
 ---@param player EntityPlayer
 function mod:RockStomp(player)
-	if funcs.DefensiveStomp(player) then return end
 	if not player:HasCollectible(CollectibleType.COLLECTIBLE_TERRA) then return end
 	local hasBirthright = player:HasCollectible(CollectibleType.COLLECTIBLE_BIRTHRIGHT)
 	local totalrocks = hasBirthright and 8 or 6

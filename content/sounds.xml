@@ -7,52 +7,7 @@
 	<sound name="Edith Stomp Water">
 		<sample weight="1" path="edithstomp_water_1.wav" />
 	</sound>
-	<sound name="Water Splash">
-		<sample weight="1" path="water_splash.wav" />
-	</sound>
-	<sound name="Taunt">
-		<sample weight="1" path="taunt.wav" />
-	</sound>
-	<sound name="Vine Boom">
-		<sample weight="1" path="vine_boom.wav" />
-	</sound>
-	<sound name="Fart Reverb">
-		<sample weight="1" path="fart_reverb.wav" />
-	</sound>
 	<sound name="Salt Shaker">
 		<sample weight="1" path="SaltShaker.wav" />
-	</sound>
-	<sound name="Pepper Grinder">
-		<sample weight="1" path="PepperGrinder.wav" />
-	</sound>
-	<sound name="Yippee">
-		<sample weight="1" path="yippee-tbh.wav" />
-	</sound>
-	<sound name="Spring">
-		<sample weight="1" path="Spring.wav" />
-	</sound>
-	<sound name="Solarian">
-		<sample weight="1" path="Solarian.wav" />
-	</sound>
-	<sound name="Machine">
-		<sample weight="1" path="Machine.wav" />
-	</sound>
-	<sound name="Mechanic">
-		<sample weight="1" path="Mechanic.wav" />
-	</sound>
-	<sound name="Knight">
-		<sample weight="1" path="Knight.wav" />
-	</sound>
-	<sound name="JackOfClubs">
-		<sample weight="1" path="JackOfClubs.wav" />
-	</sound>
-	<sound name="SoulOfEdith">
-		<sample weight="1" path="SoulOfEdith.wav" />
-	</sound>
-	<sound name="BLOQUEO">
-		<sample weight="1" path="BLOQUEO.wav" />
-	</sound>
-	<sound name="Nautrash">
-		<sample weight="1" path="Nautrash.wav" />
 	</sound>
 </sounds>

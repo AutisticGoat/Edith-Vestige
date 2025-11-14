@@ -6,13 +6,16 @@ Un clásico, refinado y mejorado, redescubre el personaje recortado de Antibirth
 Edith: Vestige es un mod que toma la mecánica principal de Edith (Antibirth), hace unos cambios y la deja como una versión más presentable del personaje, siendo originalmente la idea de un desafío para el próximo mod Edith: Rebuilt, Vestige
 
 - Control de salto: ¡Ten mayor control! Ahora el salto está asignado a un botón en vez de ser automático (tecla para SOLTAR)
-- Únicamente lágrimas: Edith será incapaz de usar otro tipo de ataques (Láseres, espadas, cuchillos, ¡Todo eso fuera!)
 - Interacción con stats: ¡Mejora tu pisotón con los stats! Ahora ciertos parámetros del pisotón dependerán de tus stats, aumenta tu área de efecto con el alcance o la fuerza de empuje con el shotspeed, entre otros
+- Únicamente lágrimas: Edith será incapaz de usar otro tipo de ataques (Láseres, espadas, cuchillos, ¡Todo eso fuera!)
 - Sinergias de pisotones: Aprovecha varios objetos para usar poderosas sinergias con los pisotones
 - Potenciado por JumpLib y REPENTOGON: El mod hace uso de JumpLib para el manejo de los saltos y REPENTOGON para características que de otra forma serían imposibles de añadir
 
 Detalles y cambios de Calidad de Vida misceláneos:
-- 
+- Anulación de daño de pinchos 
+- Menor empuje por parte de corrientes de agua
+- Lágrimas de sal (efecto visual)
+- Efectos visuales del pisotón mejorados respecto a Antibirth
 
 Posibles preguntas:
 
@@ -24,6 +27,9 @@ Mientras trabajaba en el desafío, noté que la forma de controlar al personaje 
 
 ¿Cuándo se lanzará Edith: Rebuilt?
 No hay una fecha exacta, Edith: Rebuilt requiere de funciones específicas de REPENTOGON+, el cuál se encuentra en fase de desarrollo y no es recomendable usar si no se es modder, una vez que se publique, se dará aviso de ello
+
+¿Este mod tendrá una Tainted Edith?
+No, la idea de este mod es ser una simple demostración de algo que vendrá en Rebuilt, el cuál SÍ incluye una Tainted Edith
 
 ¿Removerás Edith: Vestige de la workshop cuando se estrene Edith: Rebuilt?
 No me he decidido sobre eso, pero seguramente mantendré ambas versiones subidas
@@ -68,6 +74,9 @@ While working on the challenge, I noticed that the way the character was control
 
 When will Edith: Rebuilt be released?
 There is no exact date. Edith: Rebuilt requires specific features from REPENTOGON+, which is currently in development and is not recommended for use if you are not a modder. Once it is released, I will announce it.
+
+Will this mod feature a Tainted Edith?
+No, the idea behind this mod is to be a simple demonstration of something that will be included in Rebuilt, which DOES feature a Tainted Edith.
 
 Will you remove Edith: Vestige from the workshop when Edith: Rebuilt is released?
 I haven't decided on that yet, but I will probably keep both versions uploaded.

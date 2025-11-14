@@ -1,0 +1,13 @@
+<items gfxroot="gfx/items/" deathanm2="gfx/death items.anm2" version="1">
+	<!-- Edith unlocks  -->
+	<active
+		id="0" 
+		name="Salt Shaker​​​​​​" 
+		description="Keeps evil away" 
+		gfx="collectibles_SaltShaker.png"
+		quality="2" 
+		chargetype="timed"
+		maxcharges="360"
+		tags=""
+	/>
+</items>
