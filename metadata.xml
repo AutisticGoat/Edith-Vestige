@@ -57,8 +57,10 @@ Team:
 
 Contributors
 - SrKalaka: Edith Sprite Design
-- Kerkel: Creator of JumpLib</description>
-    <version>1.1</version>
+- Kerkel: Creator of JumpLib
+
+GitHub mirror: https://github.com/AutisticGoat/Edith-Vestige</description>
+    <version>1.2</version>
     <visibility>Public</visibility>
     <tag id="Lua"/>
     <tag id="Items"/>
