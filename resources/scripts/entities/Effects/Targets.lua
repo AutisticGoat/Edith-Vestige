@@ -19,11 +19,18 @@ end
 local function EdithTargetManagement(effect, player)
 	if effect.Variant ~= Vars.EFFECT_EDITH_TARGET then return end
 
-	local playerPos = player.Position
 	local effectPos = effect.Position
 	local room = game:GetRoom()
 
-	room:GetCamera():SetFocusPosition(interpolateVector2D(playerPos, effectPos, 0.6))
+	room:GetCamera():SetFocusPosition(interpolateVector2D(player.Position, effectPos, 0.6))
+
+	local markedTarget = player:GetMarkedTarget()
+
+	if markedTarget then 
+		markedTarget.Position = effectPos
+		markedTarget.Velocity = Vector.Zero
+		markedTarget.Color = Color(0, 0, 0, 0)
+	end
 
 	if room:GetType() ~= RoomType.ROOM_DUNGEON then return end
 	for _, v in pairs(teleportPoints) do

@@ -4,8 +4,21 @@ v1.0.0
 v1.0.1
 - Improved non-key chests opening
 - Reduced stomp i-frames (20 > 16)
+- Added changelog.txt
+- Added an actual metadata
+- Removed a thing i don't want to talk about
+- Minor code clean-up
 
 v1.0.2
 - Now Edith can take eternal hearts
 - Fixed Edith not having salt shaker
+- More code clean up
+
+v1.0.3
+- Increased Target speed when jumping
+- Increased default stomp radius, now radius will increase more
+- Now red chests can be easily opened
+- Added Marked interaction 
+- Removed Damage from Knockback formula, increased general Knockback
+- Now Stoneys will turn white when being stomped
 - More code clean up

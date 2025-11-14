@@ -62,7 +62,10 @@ Edith: Vestige is a mod that takes the main mechanics of Edith (Antibirth), make
 - Powered by JumpLib and REPENTOGON: The mod uses JumpLib for jump handling and REPENTOGON for features that would otherwise be impossible to add
 
 Miscellaneous Quality of Life details and changes:
--
+- Spike damage nullification
+- Reduced pushback from water currents
+- Salt tears (visual effect)
+- Improved visual effects for stomping compared to Antibirth
 
 Possible questions:
 

@@ -721,6 +721,7 @@ local Chests = {
 	[PickupVariant.PICKUP_MEGACHEST] = true,
 	[PickupVariant.PICKUP_HAUNTEDCHEST] = true,
 	[PickupVariant.PICKUP_LOCKEDCHEST] = true,
+	[PickupVariant.PICKUP_REDCHEST] = true
 }
 
 ---@param pickup EntityPickup
@@ -872,7 +873,9 @@ function EdithVestige:EdithStomp(parent, radius, damage, knockback, breakGrid)
 		mod.HandleEntityInteraction(ent, parent, knockback)
 
 		if ent.Type == EntityType.ENTITY_STONEY then
+			data(ent).Stomped = true
 			ent:ToNPC().State = NpcState.STATE_SPECIAL
+			-- ent:SetColor(Color(1, 1, 1, 1, 0.5, 0.5, 0.5), 40, 1, false, true)
 		end
 
 		Isaac.RunCallback(mod.Enums.Callbacks.OFFENSIVE_STOMP, parent, ent)	
@@ -894,6 +897,12 @@ function EdithVestige:EdithStomp(parent, radius, damage, knockback, breakGrid)
 		mod:DestroyGrid(parent, radius)
 	end
 end
+
+mod:AddCallback(ModCallbacks.MC_NPC_UPDATE, function(_, ent)
+	if not data(ent).Stomped then return end
+	if ent.State ~= NpcState.STATE_SPECIAL then data(ent).Stomped = false return end
+	ent:SetColor(Color(1, 1, 1, 1, 0.5, 0.5, 0.5), 2, 1, false, true)
+end, EntityType.ENTITY_STONEY)
 
 ---Helper function that returns `EntityPlayer` from `EntityRef`
 ---@param EntityRef EntityRef
@@ -991,6 +1000,15 @@ function EdithVestige.AngleToDirection(angleDegrees)
     end
 end
 
+---Changes `Entity` velocity so now it goes to `Target`'s Position, `strenght` determines how fast it'll go
+---@param Entity Entity
+---@param Target Entity
+---@param strenght number
+---@return Vector
+function EdithVestige.ChangeVelToTarget(Entity, Target, strenght)
+	return ((Entity.Position - Target.Position) * -1):Normalized():Resized(strenght)
+end
+
 --- Returns a direction corresponding to the direction the provided vector is pointing (from Library of Isaac)
 ---@param vector Vector
 ---@return Direction
@@ -1023,7 +1041,7 @@ function EdithVestige.LandFeedbackManager(player, GibColor)
 
 	local rng = stompGFX:GetDropRNG()
 	
-	game:ShakeScreen(15)
+	game:ShakeScreen(16)
 
 	local defColor = Color(1, 1, 1)
 	local color = defColor
@@ -1061,7 +1079,6 @@ function EdithVestige.LandFeedbackManager(player, GibColor)
 	GibColor = GibColor or defColor
 
 	mod:SpawnSaltGib(player, 15, 2, GibColor)
-
 	sfx:Play(soundPick, 1, 0, false)
 
 	if IsChap4 then

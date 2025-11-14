@@ -1,22 +1,14 @@
 local mod = EdithVestige
 local enums = mod.Enums
-local misc = enums.Misc
 local players = enums.PlayerType
 local costumes = enums.NullItemID
 local utils = enums.Utils
 local tables = enums.Tables
 local level = utils.Level
 local game = utils.Game 
-local sfx = utils.SFX
 local JumpParams = tables.JumpParams
 local data = mod.getData
 local Edith = {}
-
---[[
-	Problemas conocidos:
-	- Edith puede abrir cofres dorados sint ener llaves
-	- Problemas generales con los mega cofres
-]]
 
 ---@param player EntityPlayer
 ---@return integer
@@ -28,7 +20,6 @@ function Edith:EdithInit(player)
 	if not mod.IsEdith(player) then return end
 	mod.SetNewANM2(player, "gfx/EdithAnim.anm2")
 	mod.ForceCharacterCostume(player, players.PLAYER_EDITH, costumes.ID_EDITH_SCARF)
-	data(player).EdithJumpTimer = 20
 end
 mod:AddCallback(ModCallbacks.MC_POST_PLAYER_INIT, Edith.EdithInit)
 
@@ -63,7 +54,6 @@ function Edith:EdithJumpHandler(player)
 	EdithVestige.ManageEdithWeapons(player)
 
 	playerData.isJumping = playerData.isJumping or false
-	playerData.ExtraJumps = playerData.ExtraJumps or 0
 
 	if player.FrameCount > 0 and (isMoving or isKeyStompPressed or (hasMarked and isShooting)) and not isPitfall then
 		mod.SpawnEdithTarget(player)
@@ -94,7 +84,7 @@ function Edith:EdithJumpHandler(player)
 
 	if isKeyStompPressed and not IsPlayingJumpAnim(sprite) then
 		player:PlayExtraAnimation("BigJumpUp")
-		player:SetMinDamageCooldown(10)
+		player:SetMinDamageCooldown(12)
 		targetSprite:Play("Blink")
 	end
 
@@ -129,15 +119,8 @@ local function isNearTrapdoor(player)
 		gent = room:GetGridEntity(i)
 		if not gent then goto Break end
 		if playerPos:Distance(gent.Position) > 20 then goto Break end
-
 		GentType = gent:GetType()
-
 		bool = mod.When(GentType, tables.DisableLandFeedbackGrids, false)
-
-		-- if GentType == GridEntityType.GRID_GRAVITY then return true end
-		-- if not mod.When(GentType, tables.DisableLandFeedbackGrids, false) then
-		-- 	return playerPos:Distance(gent.Position) <= 20
-		-- end
 		::Break::
 	end
 	return bool
@@ -163,7 +146,6 @@ function Edith:EdithLanding(player, _, pitfall)
 	local edithTarget = mod.GetEdithTarget(player)
 
 	if not edithTarget then return end
-	playerData.ExtraJumps = math.max(playerData.ExtraJumps - 1, 0)
 
 	if pitfall then
 		mod.RemoveEdithTarget(player)
@@ -188,8 +170,8 @@ function Edith:EdithLanding(player, _, pitfall)
 	}
 	local chapter = math.ceil(level:GetStage() / 2)
 	local playerDamage = player.Damage
-	local radius = math.min((28 + ((player.TearRange / 40) - 9) * 2) * flightMult.Radius, 80)
-	local knockbackFormula = math.min(50, (7.7 + playerDamage ^ 1.2) * flightMult.Knockback) * player.ShotSpeed
+	local radius = math.min((35 + ((player.TearRange / 40) - 9) * 2) * flightMult.Radius, 90)
+	local knockbackFormula = math.min(50, (16 ^ 1.2) * flightMult.Knockback) * player.ShotSpeed
 	local coalBonus = playerData.CoalBonus or 0
 	local damageBase = 15 + (5.75 * (chapter - 1))
 	local DamageStat = playerDamage + ((playerDamage / 5.25) - 1)
@@ -210,23 +192,6 @@ function Edith:EdithLanding(player, _, pitfall)
 	playerData.isJumping = false
 end
 mod:AddCallback(JumpLib.Callbacks.ENTITY_LAND, Edith.EdithLanding, JumpParams.EdithJump)
-
----@param player EntityPlayer
-function Edith:EdithPEffectUpdate(player)
-	if not mod.IsEdith(player) then return end
-
-	local playerData = data(player)
-
-	if playerData.EdithJumpTimer == 1 and player.FrameCount > 20 then
-		mod.SetColorCooldown(player, 0.6, 5)
-		sfx:Play(SoundEffect.SOUND_STONE_IMPACT, 2, 0, false, 1)
-		playerData.StompedEntities = nil
-	end
-
-	if not mod.GetEdithTarget(player) then return end
-	if not playerData.isJumping then return end
-end
-mod:AddCallback(ModCallbacks.MC_POST_PEFFECT_UPDATE, Edith.EdithPEffectUpdate)
 
 function Edith:EdithOnNewRoom()
 	for _, player in pairs(PlayerManager.GetPlayers()) do
@@ -301,16 +266,6 @@ mod:AddCallback(ModCallbacks.MC_PRE_PLAYER_TAKE_DMG, function(_, player, _, flag
 	if mod.HasBitFlags(flags, DamageFlag.DAMAGE_ACID) or (roomType ~= RoomType.ROOM_SACRIFICE and mod.HasBitFlags(flags, DamageFlag.DAMAGE_SPIKES)) then return false end
 end)
 
-mod:AddCallback(ModCallbacks.MC_POST_TEAR_UPDATE, function(_, tear)
-    local player = mod:GetPlayerFromTear(tear)
-
-	if not player then return end
-	if not mod.IsEdith(player) then return end
-	if tear.FrameCount ~= 1 then return end
-
-	tear.Mass = tear.Mass * 10
-end)
-
 mod:AddCallback(ModCallbacks.MC_POST_FIRE_TEAR, function(_, tear)
     local player = mod:GetPlayerFromTear(tear)
 
@@ -318,6 +273,12 @@ mod:AddCallback(ModCallbacks.MC_POST_FIRE_TEAR, function(_, tear)
     if not mod.IsEdith(player) then return end
 
 	mod.ForceSaltTear(tear)
+
+	if not player:HasCollectible(CollectibleType.COLLECTIBLE_MARKED) then return end	
+	local target = mod.GetEdithTarget(player)
+
+	if not target then return end
+	tear.Velocity = mod.ChangeVelToTarget(tear, target, player.ShotSpeed * 10)
 end)
 
 local NonTriggerAnimPickupVar = {
