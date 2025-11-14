@@ -1,8 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <metadata>
-	<name>Edith: Vestige</name>
-	<directory>edithvestige</directory>
-	<description/>
-	<version>1.0</version>
-	<visibility/>
-</metadata>
+    <name>Edith: Vestige</name>
+    <directory>edithvestige</directory>
+    <id>3605286450</id>
+    <description>[h1] WARNING: THIS MOD REQUIRES [url=https://repentogon.com/]REPENTOGON[/url] TO WORK [/h1]
+[h1] WARNING: THIS MOD IS A DEMO OF THE UPCOMING MOD EDITH: REBUILT [/h1]
 
+[h2] A classic, refined and improved, rediscover the cut character from Antibirth: Edith [/h2] 
+
+Edith: Vestige is a mod that takes the main mechanics of Edith (Antibirth), makes some changes, and leaves it as a more presentable version of the character, originally intended as a challenge for the upcoming mod Edith: Rebuilt, Vestige
+
+[h3][b]Main Feautures[/b][/h3]
+[list]
+[*][b]Jump control:[/b] Have more control! Jumping is now assigned to a button instead of being automatic (DROP key)
+[*][b]Tears only: [/b] Edith will be unable to use other types of attacks (Lasers, swords, knives, all that stuff is gone!)
+[*][b]Interaction with stats: [/b] Improve your stomp with stats! Now certain stomp parameters will depend on your stats, increase your area of effect with range or thrust force with shotspeed, among others
+[*][b]Stomp synergies:[/b] Take advantage of various objects to use powerful synergies with stomps
+[*][b]Powered by [url=https://github.com/drpandacat/JumpLib]JumpLib[/url] and [url=https://repentogon.com/]REPENTOGON[/url][/b]: The mod uses JumpLib for jump handling and REPENTOGON for features that would otherwise be impossible to add
+[/list] 
+
+
+[h3][b]Miscellaneous Quality of Life details and changes:[/b][/h3]
+[list]
+[*]Spike damage nullification
+[*]Reduced pushback from water currents
+[*]Salt tears (visual effect)
+[*]Improved visual effects for stomping compared to Antibirth
+[/list]
+
+[h3]Possible questions:[/h3]
+
+[b]What is Edith: Rebuilt?[/b]
+Edith: Rebuilt is the original project from which Edith: Vestige derives, a mod loaded with more content, a Tainted counterpart, and much more work.
+
+[b]Why did you decide to make this mod?[/b]
+While working on the challenge, I noticed that the way the character was controlled was somewhere between the rework done for Rebuilt and the work done in Antibirth, so I decided to do this as an experiment.
+
+[b]When will Edith: Rebuilt be released?[/b]
+There is no exact date. Edith: Rebuilt requires specific features from REPENTOGON+, which is currently in development and is not recommended for use if you are not a modder. Once it is released, I will announce it.
+
+[b]Will this mod feature a Tainted Edith?[/b]
+No, the idea behind this mod is to be a simple demonstration of something that will be included in Rebuilt, which DOES feature a Tainted Edith.
+
+[b]Will you remove Edith: Vestige from the workshop when Edith: Rebuilt is released?[/b]
+I haven't decided on that yet, but I will probably keep both versions uploaded.
+
+[b]Will Vestige continue to be a challenge for Edith: Rebuilt?[/b]
+Yes, the challenge will remain the same and will have the same gameplay as this mod.
+
+Edith: Rebuilt can be tested right now by downloading it from its [url=https://github.com/AutisticGoat/Edith-Rebuilt]GitHub repository[/url]. Please note that it requires Repentance+ and REPENTOGON to function properly, being this the main reason it's not released yet.
+
+Thank you for playing the mod, I hope you like it!
+
+Team:
+- Kotry: Direction and main programming
+
+Contributors
+- SrKalaka: Edith Sprite Design
+- Kerkel: Creator of JumpLib</description>
+    <version>1.1</version>
+    <visibility>Public</visibility>
+    <tag id="Lua"/>
+    <tag id="Items"/>
+    <tag id="Active Items"/>
+    <tag id="Player Characters"/>
+</metadata>

@@ -61,8 +61,8 @@ mod:AddPriorityCallback(ModCallbacks.MC_POST_PROJECTILE_INIT, -200, mod.resetTem
 
 --- Alternative to Entity::GetData()
 ---
---- Acts as a localized version to avoid incompatibilities with
---- other mods.
+--- Acts as a localized version to avoid incompatibilities with other mods.
+--- Taken from Cucco's REPENTOGON saving system
 ---@param entity Entity
 ---@return table
 function EdithVestige.getData(entity)
@@ -167,12 +167,6 @@ function EdithVestige.SetColorCooldown(player, intensity, duration)
 		
 	pcolor:SetOffset(Red, Green, Blue)
 	player:SetColor(pcolor, duration, 100, true, false)
-end
-
----Used to add some interactions to Judas' Birthright effect
----@param player EntityPlayer
-function EdithVestige.IsJudasWithBirthright(player)
-	return player:GetPlayerType() == PlayerType.PLAYER_JUDAS and mod.PlayerHasBirthright(player)
 end
 
 ---Checks if player triggered Edith's jump action
@@ -485,27 +479,6 @@ function EdithVestige:SpawnBlackPowder(parent, quantity, position, distance)
 	Pentagram.Scale = distance + distance / 2	
 end
 
----@param player EntityPlayer
-function EdithVestige.GetNearestEnemy(player)
-	local closestDistance = math.huge
-    local playerPos = player.Position
-	local room = game:GetRoom()
-	local closestEnemy, enemyPos, distanceToPlayer, checkline
-
-	for _, enemy in ipairs(mod.GetEnemies()) do
-		if enemy:HasEntityFlags(EntityFlag.FLAG_CHARM) then goto Break end
-		enemyPos = enemy.Position
-		distanceToPlayer = enemyPos:Distance(playerPos)
-		checkline = room:CheckLine(playerPos, enemyPos, LineCheckMode.PROJECTILE, 0, false, false)
-		if not checkline then goto Break end
-        if distanceToPlayer >= closestDistance then goto Break end
-        closestEnemy = enemy
-        closestDistance = distanceToPlayer
-        ::Break::
-	end
-    return closestEnemy
-end
-
 ---Expontential function
 ---@param number number
 ---@param coeffcient number
@@ -783,7 +756,7 @@ end
 
 local function chestKeyManager(parent, pickup)
 	if not IsChest(pickup) then return end
-	if not IsKeyRequiredChest(pickup) then  return end
+	if not IsKeyRequiredChest(pickup) then pickup:TryOpenChest(parent) return end
 	if not CanOpenChests(parent) then return end
 	if pickup:GetSprite():GetAnimation() == "Open" then return end
 
@@ -824,8 +797,6 @@ function EdithVestige.HandleEntityInteraction(ent, parent, knockback)
             local tear = ent:ToTear()
             if not tear then return end
 			if mod.IsEdith(parent) then return end
-
-			mod.BoostTear(tear, 25, 1.5)
         end,
         [EntityType.ENTITY_FIREPLACE] = function()
             if var == 4 then return end
@@ -848,9 +819,6 @@ function EdithVestige.HandleEntityInteraction(ent, parent, knockback)
 			parent:ForceCollide(pickup, true)
 
 			chestKeyManager(parent, pickup)
-
-            -- if not (var == PickupVariant.PICKUP_BOMBCHEST and mod.IsEdith(parent)) then return end
-			-- pickup:TryOpenChest(parent)
         end,
         [EntityType.ENTITY_SHOPKEEPER] = function()
             ent:Kill()
@@ -863,9 +831,6 @@ end
 mod:AddCallback(ModCallbacks.MC_POST_PICKUP_UPDATE, function(_, pickup)
 	local piData = data(pickup)
 	local sprite = pickup:GetSprite()
-
-	-- print(sprite:GetAnimation())
-	-- print(pickup.State)
 
 	if not piData.CollOpen then return end
 	if not sprite:IsFinished("UseKey") then return end
@@ -887,24 +852,24 @@ function EdithVestige.LandDamage(ent, dealEnt, damage, knockback)
 	mod.TriggerPush(ent, dealEnt, knockback, 5, false)
 end
 
--- ---@param ent Entity
--- ---@param player EntityPlayer
--- function EdithVestige.AddExtraGore(ent, player)
--- 	local enabledExtraGore
+---@param ent Entity
+---@param player EntityPlayer
+function EdithVestige.AddExtraGore(ent, player)
+	local enabledExtraGore
 
--- 	if mod.IsEdith(player, false) then
--- 		enabledExtraGore = mod.GetConfigData(ConfigDataTypes.EDITH).EnableExtraGore
--- 	elseif mod.IsEdith(player, true) then
--- 		enabledExtraGore = mod.GetConfigData(ConfigDataTypes.TEDITH).EnableExtraGore
--- 	end
+	-- if mod.IsEdith(player, false) then
+	-- 	enabledExtraGore = mod.GetConfigData(ConfigDataTypes.EDITH).EnableExtraGore
+	-- elseif mod.IsEdith(player, true) then
+	-- 	enabledExtraGore = mod.GetConfigData(ConfigDataTypes.TEDITH).EnableExtraGore
+	-- end
 
--- 	if not enabledExtraGore then return end
--- 	if not ent:ToNPC() then return end
+	if not enabledExtraGore then return end
+	if not ent:ToNPC() then return end
 
--- 	ent:AddEntityFlags(EntityFlag.FLAG_EXTRA_GORE)
--- 	ent:MakeBloodPoof(ent.Position, nil, 0.5)
--- 	sfx:Play(SoundEffect.SOUND_DEATH_BURST_LARGE)
--- end
+	ent:AddEntityFlags(EntityFlag.FLAG_EXTRA_GORE)
+	ent:MakeBloodPoof(ent.Position, nil, 0.5)
+	sfx:Play(SoundEffect.SOUND_DEATH_BURST_LARGE)
+end
 
 ---Custom Edith stomp Behavior
 ---@param parent EntityPlayer
@@ -917,9 +882,8 @@ function EdithVestige:EdithStomp(parent, radius, damage, knockback, breakGrid)
 	local TerraRNG = parent:GetCollectibleRNG(CollectibleType.COLLECTIBLE_TERRA)
 	local TerraMult = HasTerra and mod.RandomFloat(TerraRNG, 0.5, 2) or 1	
 	local playerData = data(parent)
-	local FrozenMult, BCRRNG
+	local FrozenMult
 	local capsule = Capsule(parent.Position, Vector.One, 0, radius)
-	local isSalted
 
 	playerData.StompedEntities = Isaac.FindInCapsule(capsule)
 
@@ -1052,23 +1016,6 @@ end
 ---@return Direction
 function EdithVestige.VectorToDirection(vector)
 	return mod.AngleToDirection(vector:GetAngleDegrees())
-end
-
----Makes the tear to receive a boost, increasing its speed and damage
----@param tear EntityTear	
----@param speed number
----@param dmgMult number
-function EdithVestige.BoostTear(tear, speed, dmgMult)
-	local player = mod:GetPlayerFromTear(tear) ----@cast player EntityPlayer	
-	local nearEnemy = mod.GetNearestEnemy(player)
-
-	if nearEnemy then
-		tear.Velocity = (nearEnemy.Position - tear.Position):Normalized()
-	end
-	
-	tear.CollisionDamage = tear.CollisionDamage * dmgMult
-	tear.Velocity = tear.Velocity:Resized(speed)
-	tear:AddTearFlags(TearFlags.TEAR_KNOCKBACK)
 end
 
 ---Function for audiovisual feedback of Edith and Tainted Edith landings.

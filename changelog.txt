@@ -1,0 +1,6 @@
+v1.0.0
+- Mod release!
+
+v1.0.1
+- Improved non-key chests opening
+- Reduced stomp i-frames (20 > 16)

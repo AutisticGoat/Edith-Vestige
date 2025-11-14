@@ -203,7 +203,7 @@ function Edith:EdithLanding(player, _, pitfall)
 	edithTarget:GetSprite():Play("Idle")
 
 	player:MultiplyFriction(0.05)
-	player:SetMinDamageCooldown(20)
+	player:SetMinDamageCooldown(15)
 
 	mod.RemoveEdithTarget(player)
 	playerData.IsFalling = false	
