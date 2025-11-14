@@ -8,7 +8,7 @@ EdithVestige.Enums = {
 		PLAYER_EDITH = EdithPlayer,
 	},
 	CollectibleType = {
-		COLLECTIBLE_SALTSHAKER = Isaac.GetItemIdByName("Salt Shaker"),
+		COLLECTIBLE_SALTSHAKER = Isaac.GetItemIdByName("Salt Shaker​​​​​​"),
 	},
 	NullItemID = {
 		ID_EDITH_SCARF = Isaac.GetCostumeIdByPath("gfx/characters/EdithHood.anm2"),

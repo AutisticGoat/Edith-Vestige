@@ -83,7 +83,6 @@ local jumpTags = tables.JumpTags
 local jumpFlags = tables.JumpFlags
 local misc = enums.Misc
 local players = enums.PlayerType
-local sounds = enums.SoundEffect
 local data = mod.getData
 
 local MortisBackdrop = {
@@ -538,17 +537,16 @@ end
 ---@param player EntityPlayer
 ---@return number
 function EdithVestige.GetEdithTargetDistance(player)
-	local target = mod.GetEdithTarget(player, false)
+	local target = mod.GetEdithTarget(player)
 	if not target then return 0 end
 	return player.Position:Distance(target.Position)
 end
 
----Returns a normalized vector that represents direction regarding Edith and her Target, set `tainted` to true to check for Tainted Edith's arrow instead
+---Returns a normalized vector that represents direction regarding Edith and her Target
 ---@param player EntityPlayer
----@param tainted boolean?
 ---@return Vector
-function EdithVestige.GetEdithTargetDirection(player, tainted)
-	local target = mod.GetEdithTarget(player, tainted or false)
+function EdithVestige.GetEdithTargetDirection(player)
+	local target = mod.GetEdithTarget(player)
 	return (target.Position - player.Position):Normalized()
 end
 
@@ -638,9 +636,8 @@ end
 ---@param tainted? boolean
 function EdithVestige.SpawnEdithTarget(player, tainted)
 	if mod.IsDogmaAppearCutscene() then return end
-	if mod.GetEdithTarget(player, tainted or false) then return end 
+	if mod.GetEdithTarget(player) then return end 
 
-	local playerData = data(player)
 	local target = Isaac.Spawn(	
 		EntityType.ENTITY_EFFECT,
 		effectVariant.EFFECT_EDITH_TARGET,
@@ -653,29 +650,25 @@ function EdithVestige.SpawnEdithTarget(player, tainted)
 	target.DepthOffset = -100
 	target.SortingLayer = SortingLayer.SORTING_NORMAL
 	target.GridCollisionClass = GridCollisionClass.COLLISION_SOLID
-	playerData.EdithTarget = target
+	data(player).EdithTarget = target
 end
 
----Function to get Edith's Target, setting `tainted` to `true` will return Tainted Edith's Arrow
 ---@param player EntityPlayer
----@param tainted boolean?
 ---@return EntityEffect
-function EdithVestige.GetEdithTarget(player, tainted)
-	local playerData = data(player)
-	return tainted and playerData.TaintedEdithTarget or playerData.EdithTarget
+function EdithVestige.GetEdithTarget(player)
+	return data(player).EdithTarget
 end
 
 ---Function to remove Edith's target
 ---@param player EntityPlayer
 ---@param tainted? boolean
 function EdithVestige.RemoveEdithTarget(player, tainted)
-	local target = mod.GetEdithTarget(player, tainted)
+	local target = mod.GetEdithTarget(player)
 
 	if not target then return end
 	target:Remove()
 
-	local playerData = data(player)
-	playerData.EdithTarget = nil
+	data(player).EdithTarget = nil
 end
 
 function EdithVestige.HasBitFlags(flags, checkFlag)
@@ -793,11 +786,6 @@ end
 function EdithVestige.HandleEntityInteraction(ent, parent, knockback)
 	local var = ent.Variant
     local stompBehavior = {
-        [EntityType.ENTITY_TEAR] = function()
-            local tear = ent:ToTear()
-            if not tear then return end
-			if mod.IsEdith(parent) then return end
-        end,
         [EntityType.ENTITY_FIREPLACE] = function()
             if var == 4 then return end
             ent:Die()
@@ -852,24 +840,16 @@ function EdithVestige.LandDamage(ent, dealEnt, damage, knockback)
 	mod.TriggerPush(ent, dealEnt, knockback, 5, false)
 end
 
----@param ent Entity
----@param player EntityPlayer
-function EdithVestige.AddExtraGore(ent, player)
-	local enabledExtraGore
+-- I'll maybe add this later
+-- ---@param ent Entity
+-- function EdithVestige.AddExtraGore(ent)
+-- 	if not enabledExtraGore then return end
+-- 	if not ent:ToNPC() then return end
 
-	-- if mod.IsEdith(player, false) then
-	-- 	enabledExtraGore = mod.GetConfigData(ConfigDataTypes.EDITH).EnableExtraGore
-	-- elseif mod.IsEdith(player, true) then
-	-- 	enabledExtraGore = mod.GetConfigData(ConfigDataTypes.TEDITH).EnableExtraGore
-	-- end
-
-	if not enabledExtraGore then return end
-	if not ent:ToNPC() then return end
-
-	ent:AddEntityFlags(EntityFlag.FLAG_EXTRA_GORE)
-	ent:MakeBloodPoof(ent.Position, nil, 0.5)
-	sfx:Play(SoundEffect.SOUND_DEATH_BURST_LARGE)
-end
+-- 	ent:AddEntityFlags(EntityFlag.FLAG_EXTRA_GORE)
+-- 	ent:MakeBloodPoof(ent.Position, nil, 0.5)
+-- 	sfx:Play(SoundEffect.SOUND_DEATH_BURST_LARGE)
+-- end
 
 ---Custom Edith stomp Behavior
 ---@param parent EntityPlayer

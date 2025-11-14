@@ -203,7 +203,7 @@ function Edith:EdithLanding(player, _, pitfall)
 	edithTarget:GetSprite():Play("Idle")
 
 	player:MultiplyFriction(0.05)
-	player:SetMinDamageCooldown(15)
+	player:SetMinDamageCooldown(16)
 
 	mod.RemoveEdithTarget(player)
 	playerData.IsFalling = false	
@@ -329,6 +329,10 @@ local NonTriggerAnimPickupVar = {
 	[PickupVariant.PICKUP_TAROTCARD] = true,
 }
 
+local function IsEternalHeart(pickup)
+	return pickup.Variant == PickupVariant.PICKUP_HEART and pickup.SubType == HeartSubType.HEART_ETERNAL
+end
+
 ---@param player EntityPlayer
 ---@param collider Entity
 function Edith:OnPickupColl(player, collider)
@@ -336,6 +340,11 @@ function Edith:OnPickupColl(player, collider)
 	local sprite = player:GetSprite()
 
 	if not pickup then return end
+
+	if IsEternalHeart(pickup) then
+		pickup.Position = player.Position
+		sprite:SetFrame(11)
+	end
 	if not NonTriggerAnimPickupVar[pickup.Variant] then return end
 	if not sprite:IsPlaying("BigJumpFinish") then return end 
 
