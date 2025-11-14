@@ -75,7 +75,7 @@ function Edith:EdithJumpHandler(player)
 
 		local VectorX = ((input.left > 0.3 and -input.left) or (input.right > 0.3 and input.right) or 0) * (game:GetRoom():IsMirrorWorld() and -1 or 1)
 		local VectorY = ((input.up > 0.3 and -input.up) or (input.down > 0.3 and input.down) or 0)
-		friction = targetSprite:IsPlaying("Blink") and 0.5 or 0.775
+		friction = targetSprite:IsPlaying("Blink") and 0.6 or 0.775
 
 		target.Velocity = target.Velocity + Vector(VectorX, VectorY):Normalized():Resized(4)
 	end

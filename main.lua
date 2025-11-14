@@ -1,6 +1,5 @@
 EdithVestige = RegisterMod("Edith: Vestige", 1) --[[@as ModReference|table]]
-
-EdithVestige.Version = "v1.0.2"
+EdithVestige.Version = "v1.0.3a"
 
 if not REPENTOGON then 
     local font = Font()

@@ -22,3 +22,6 @@ v1.0.3
 - Removed Damage from Knockback formula, increased general Knockback
 - Now Stoneys will turn white when being stomped
 - More code clean up
+
+v1.0.3a
+- Fixed target jump speed not being increased
