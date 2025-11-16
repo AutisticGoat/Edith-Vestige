@@ -52,10 +52,6 @@ EdithVestige.Enums = {
 			[WeaponType.WEAPON_TECH_X] = true,
 			[WeaponType.WEAPON_SPIRIT_SWORD] = true
 		},
-		FrameLimits = {
-			["Idle"] = 12,
-			["Blink"] = 2
-		},
 		BloodytearVariants = {
 			[TearVariant.BLOOD] = true,
 			[TearVariant.GLAUCOMA_BLOOD] = true,
@@ -70,18 +66,6 @@ EdithVestige.Enums = {
 			[BackdropType.BLUE_WOMB] = Color(0, 0, 0, 1, 0.3, 0.4, 0.6),
 			[BackdropType.CORPSE] = Color(0, 0, 0, 1, 0.62, 0.65, 0.62),
 			[BackdropType.CORPSE2] = Color(0, 0, 0, 1, 0.55, 0.57, 0.55),
-		},
-		Runes = {
-			Card.RUNE_HAGALAZ,
-			Card.RUNE_JERA,
-			Card.RUNE_EHWAZ,
-			Card.RUNE_DAGAZ,
-			Card.RUNE_ANSUZ,
-			Card.RUNE_PERTHRO,
-			Card.RUNE_BERKANO,
-			Card.RUNE_ALGIZ,
-			Card.RUNE_BLANK,
-			Card.RUNE_BLACK,
 		},
 		JumpTags = {
 			EdithJump = edithJumpTag,
@@ -129,16 +113,6 @@ EdithVestige.Enums = {
 			[FamiliarVariant.PUNCHING_BAG] = true,
 			[FamiliarVariant.CUBE_BABY] = true,
 		},
-		CooldownSounds = {
-			[1] = {
-				SoundID = SoundEffect.SOUND_STONE_IMPACT,
-				Pitch = 1.2,
-			},
-			[2] = {
-				SoundID = SoundEffect.SOUND_BEEP,
-				Pitch = 0.8
-			} 
-		},
 		RemoveTargetItems = {
 			[CollectibleType.COLLECTIBLE_ESAU_JR] = true,
 			[CollectibleType.COLLECTIBLE_CLICKER] = true,
@@ -151,9 +125,7 @@ EdithVestige.Enums = {
 	},
 	Misc = {
 		TearPath = "gfx/tears/",
-		HeadAdjustVec = Vector.Zero,
 		SaltShakerDist = Vector(0, 60),
 		ColorDefault = Color(1, 1, 1, 1),
-		JumpReadyColor = Color(1, 1, 1, 1, 0.5, 0.5, 0.5),
 	},
 }

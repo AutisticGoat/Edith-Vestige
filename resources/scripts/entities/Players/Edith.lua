@@ -176,7 +176,7 @@ function Edith:EdithLanding(player, _, pitfall)
 	local damageBase = 15 + (5.75 * (chapter - 1))
 	local DamageStat = playerDamage + ((playerDamage / 5.25) - 1)
 	local multishotMult = mod.Round(mod.exp(GetNumTears(player), 1, 0.68), 2)
-	local birthrightMult = mod.PlayerHasBirthright(player) and 1.2 or 1
+	local birthrightMult = mod.PlayerHasBirthright(player) and 1.25 or 1
 	local bloodClotMult = player:HasCollectible(CollectibleType.COLLECTIBLE_BLOOD_CLOT) and 1.1 or 1
 	local RawFormula = (((((damageBase + (DamageStat)) * multishotMult) * birthrightMult) * bloodClotMult) * flightMult.Damage) + coalBonus
 	local damageFormula = math.max(mod.Round(RawFormula, 2), 1)
@@ -288,6 +288,7 @@ local NonTriggerAnimPickupVar = {
 	[PickupVariant.PICKUP_SHOPITEM] = true,
 	[PickupVariant.PICKUP_PILL] = true,
 	[PickupVariant.PICKUP_TAROTCARD] = true,
+	[PickupVariant.PICKUP_LIL_BATTERY] = true
 }
 
 local function IsEternalHeart(pickup)

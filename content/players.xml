@@ -1,5 +1,4 @@
 <players root="gfx/characters/costumes/" portraitroot="gfx/ui/stage/" nameimageroot="gfx/ui/boss/">
-		 
 	<player 
 		name="Edith​​​​​​" 
 		skin="characterEdith.png" 

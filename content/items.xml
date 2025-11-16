@@ -1,5 +1,4 @@
 <items gfxroot="gfx/items/" deathanm2="gfx/death items.anm2" version="1">
-	<!-- Edith unlocks  -->
 	<active
 		id="0" 
 		name="Salt Shaker​​​​​​" 

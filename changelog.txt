@@ -25,3 +25,10 @@ v1.0.3
 
 v1.0.3a
 - Fixed target jump speed not being increased
+
+v1.0.4
+- Fixed Edith being unable to pick up batteries
+- Removed unused entries from mod's XML files
+- Removed unused Save Manager script
+- Removed unused PreKillNPC Callback script 
+- Increased Birthright stomp multiplier (1.2 > 1.25)
