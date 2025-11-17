@@ -742,42 +742,57 @@ local function ShouldConsumeKeys(player)
 	return (player:GetNumKeys() > 0 and not player:HasGoldenKey())
 end
 
----@param player EntityPlayer
----@return boolean
-local function CanOpenChests(player)
-	return(player:GetNumKeys() > 0 or player:HasGoldenKey())
+---@param pickup EntityPickup
+local function MegaChestManager(player, pickup)
+	local sprite = pickup:GetSprite()
+	sprite:Play("Idle")
+
+	if not sprite:IsPlaying("UseKey") or sprite:IsFinished("UseKey") then
+		sprite:Play("UseKey")
+	end
+
+	player:TryUseKey()
 end
 
-local function chestKeyManager(parent, pickup)
-	if not IsChest(pickup) then return end
-	if not IsKeyRequiredChest(pickup) then pickup:TryOpenChest(parent) return end
-	if not CanOpenChests(parent) then return end
-	if pickup:GetSprite():GetAnimation() == "Open" then return end
+local NonTriggerAnimPickupVar = {
+	[PickupVariant.PICKUP_COLLECTIBLE] = true,
+	[PickupVariant.PICKUP_TRINKET] = true,
+	[PickupVariant.PICKUP_BROKEN_SHOVEL] = true,
+	[PickupVariant.PICKUP_SHOPITEM] = true,
+	[PickupVariant.PICKUP_PILL] = true,
+	[PickupVariant.PICKUP_TAROTCARD] = true,
+	[PickupVariant.PICKUP_LIL_BATTERY] = true,
+	[PickupVariant.PICKUP_THROWABLEBOMB] = true,
+	[PickupVariant.PICKUP_BED] = true,
+	[PickupVariant.PICKUP_MOMSCHEST] = true,
+	[PickupVariant.PICKUP_TROPHY] = true,
+}
 
-	if ShouldConsumeKeys(parent) then
-		parent:AddKeys(-1)
+---@param player EntityPlayer
+---@param pickup EntityPickup
+local function PickupManager(player, pickup)
+	local room = game:GetRoom()
+	local IsStopAnimPickup = mod.When(pickup.Variant, NonTriggerAnimPickupVar, false)
+	local IsEternalHeart = (pickup.Variant == PickupVariant.PICKUP_HEART and pickup.SubType == HeartSubType.HEART_ETERNAL)
+	local IsMegaChest = (pickup.Variant == PickupVariant.PICKUP_MEGACHEST)
+
+	if (IsStopAnimPickup or IsEternalHeart) then
+		player:StopExtraAnimation()
 	end
 
-	if pickup.Variant ~= PickupVariant.PICKUP_MEGACHEST then
-		pickup:TryOpenChest(parent)
-		return
-	end
-
-	local rng = pickup:GetDropRNG()
-	local piData = data(pickup)
-
-	piData.OpenAttempts = 0
-	piData.OpenAttempts = piData.OpenAttempts + 1
-
-	local attempt = piData.OpenAttempts
-	local openRoll = rng:RandomInt(attempt, 7)
-
-	if openRoll == 7 then
-		pickup:TryOpenChest(parent)
-	else 
-		piData.CollOpen = true
-		sfx:Play(SoundEffect.SOUND_UNLOCK00)
-		pickup:GetSprite():Play("UseKey")
+	if IsChest(pickup) then
+		if room:GetType() == RoomType.ROOM_CHALLENGE then
+			player:StopExtraAnimation()
+			pickup.Position = player.Position
+			pickup.Velocity = Vector(0, 0)
+		elseif IsMegaChest then
+			MegaChestManager(player, pickup)
+		else
+			if IsKeyRequiredChest(pickup) and ShouldConsumeKeys(player) then
+				player:TryUseKey()
+			end
+			pickup:TryOpenChest()
+		end
 	end
 end
 
@@ -804,10 +819,10 @@ function EdithVestige.HandleEntityInteraction(ent, parent, knockback)
             local isFlavorTextPickup = mod.When(var, tables.BlacklistedPickupVariants, false)
             local IsLuckyPenny = var == PickupVariant.PICKUP_COIN and ent.SubType == CoinSubType.COIN_LUCKYPENNY
 
+			PickupManager(parent, pickup)
+
             if isFlavorTextPickup or IsLuckyPenny then return end
 			parent:ForceCollide(pickup, true)
-
-			chestKeyManager(parent, pickup)
         end,
         [EntityType.ENTITY_SHOPKEEPER] = function()
             ent:Kill()
@@ -815,17 +830,6 @@ function EdithVestige.HandleEntityInteraction(ent, parent, knockback)
     }
 	mod.WhenEval(ent.Type, stompBehavior)
 end
-
----@param pickup EntityPickup
-mod:AddCallback(ModCallbacks.MC_POST_PICKUP_UPDATE, function(_, pickup)
-	local piData = data(pickup)
-	local sprite = pickup:GetSprite()
-
-	if not piData.CollOpen then return end
-	if not sprite:IsFinished("UseKey") then return end
-
-	sprite:Play("Idle")
-end, PickupVariant.PICKUP_MEGACHEST)
 
 local damageFlags = DamageFlag.DAMAGE_CRUSH | DamageFlag.DAMAGE_IGNORE_ARMOR
 
@@ -875,7 +879,6 @@ function EdithVestige:EdithStomp(parent, radius, damage, knockback, breakGrid)
 		if ent.Type == EntityType.ENTITY_STONEY then
 			data(ent).Stomped = true
 			ent:ToNPC().State = NpcState.STATE_SPECIAL
-			-- ent:SetColor(Color(1, 1, 1, 1, 0.5, 0.5, 0.5), 40, 1, false, true)
 		end
 
 		Isaac.RunCallback(mod.Enums.Callbacks.OFFENSIVE_STOMP, parent, ent)	

@@ -32,3 +32,9 @@ v1.0.4
 - Removed unused Save Manager script
 - Removed unused PreKillNPC Callback script 
 - Increased Birthright stomp multiplier (1.2 > 1.25)
+
+v1.0.5
+- Improved chest opening with stomps (should be more faithful to vanilla)
+- Now Edith can pickup red bombs, interact with beds, open mom's chest and pickup trophies
+- Fixed Edith not triggering non-boss challenge rooms
+- Hopefully fixed Edith not being able to pick up pills when being drowsy

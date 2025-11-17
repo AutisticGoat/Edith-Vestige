@@ -59,6 +59,10 @@ function Edith:EdithJumpHandler(player)
 		mod.SpawnEdithTarget(player)
 	end
 
+	if not isJumping then
+		player:MultiplyFriction(0.35)
+	end
+
 	local target = mod.GetEdithTarget(player)
 	if not target then return end
 
@@ -160,8 +164,6 @@ function Edith:EdithLanding(player, _, pitfall)
 		return
 	end
 
-	player:PlayExtraAnimation("BigJumpFinish")
-
 	local CanFly = player.CanFly
 	local flightMult = {
 		Damage = CanFly == true and 1.5 or 1,
@@ -181,6 +183,8 @@ function Edith:EdithLanding(player, _, pitfall)
 	local RawFormula = (((((damageBase + (DamageStat)) * multishotMult) * birthrightMult) * bloodClotMult) * flightMult.Damage) + coalBonus
 	local damageFormula = math.max(mod.Round(RawFormula, 2), 1)
 
+	player:PlayExtraAnimation("BigJumpFinish")
+
 	mod:EdithStomp(player, radius, damageFormula, knockbackFormula, true)
 	edithTarget:GetSprite():Play("Idle")
 
@@ -190,6 +194,8 @@ function Edith:EdithLanding(player, _, pitfall)
 	mod.RemoveEdithTarget(player)
 	playerData.IsFalling = false	
 	playerData.isJumping = false
+
+	
 end
 mod:AddCallback(JumpLib.Callbacks.ENTITY_LAND, Edith.EdithLanding, JumpParams.EdithJump)
 
@@ -281,35 +287,25 @@ mod:AddCallback(ModCallbacks.MC_POST_FIRE_TEAR, function(_, tear)
 	tear.Velocity = mod.ChangeVelToTarget(tear, target, player.ShotSpeed * 10)
 end)
 
-local NonTriggerAnimPickupVar = {
-	[PickupVariant.PICKUP_COLLECTIBLE] = true,
-	[PickupVariant.PICKUP_TRINKET] = true,
-	[PickupVariant.PICKUP_BROKEN_SHOVEL] = true,
-	[PickupVariant.PICKUP_SHOPITEM] = true,
-	[PickupVariant.PICKUP_PILL] = true,
-	[PickupVariant.PICKUP_TAROTCARD] = true,
-	[PickupVariant.PICKUP_LIL_BATTERY] = true
-}
-
 local function IsEternalHeart(pickup)
 	return pickup.Variant == PickupVariant.PICKUP_HEART and pickup.SubType == HeartSubType.HEART_ETERNAL
 end
 
----@param player EntityPlayer
----@param collider Entity
-function Edith:OnPickupColl(player, collider)
-	local pickup = collider:ToPickup()
-	local sprite = player:GetSprite()
+-- ---@param player EntityPlayer
+-- ---@param collider Entity
+-- function Edith:OnPickupColl(player, collider)
+-- 	local pickup = collider:ToPickup()
+-- 	local sprite = player:GetSprite()
 
-	if not pickup then return end
+-- 	if not pickup then return end
 
-	if IsEternalHeart(pickup) then
-		pickup.Position = player.Position
-		sprite:SetFrame(11)
-	end
-	if not NonTriggerAnimPickupVar[pickup.Variant] then return end
-	if not sprite:IsPlaying("BigJumpFinish") then return end 
+-- 	if IsEternalHeart(pickup) then
+-- 		pickup.Position = player.Position
+-- 		sprite:SetFrame(11)
+-- 	end
+-- 	if not NonTriggerAnimPickupVar[pickup.Variant] then return end
+-- 	if not sprite:IsPlaying("BigJumpFinish") then return end 
 
-	sprite:SetFrame(11)
-end
-mod:AddCallback(ModCallbacks.MC_PRE_PLAYER_COLLISION, Edith.OnPickupColl)
+-- 	sprite:SetFrame(11)
+-- end
+-- mod:AddCallback(ModCallbacks.MC_PRE_PLAYER_COLLISION, Edith.OnPickupColl)
