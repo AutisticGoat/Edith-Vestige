@@ -117,11 +117,6 @@ EdithVestige.Enums = {
 			[CollectibleType.COLLECTIBLE_ESAU_JR] = true,
 			[CollectibleType.COLLECTIBLE_CLICKER] = true,
 		},
-		DisableLandFeedbackGrids = {
-			[GridEntityType.GRID_TRAPDOOR] = true,
-			[GridEntityType.GRID_STAIRS] = true,
-			[GridEntityType.GRID_GRAVITY] = true,
-		},
 	},
 	Misc = {
 		TearPath = "gfx/tears/",

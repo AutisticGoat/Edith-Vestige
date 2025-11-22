@@ -50,16 +50,16 @@ function Edith:EdithJumpHandler(player)
 	local isJumping = jumpData.Jumping 
 	local sprite = player:GetSprite()
 	local jumpInternalData = JumpLib.Internal:GetData(player)
+	local IsGnawedLeafPetrified = player:GetGnawedLeafTimer() >= 65
 
 	EdithVestige.ManageEdithWeapons(player)
-
 	playerData.isJumping = playerData.isJumping or false
 
 	if player.FrameCount > 0 and (isMoving or isKeyStompPressed or (hasMarked and isShooting)) and not isPitfall then
 		mod.SpawnEdithTarget(player)
 	end
 
-	if not isJumping then
+	if not isJumping and not (game:GetRoom():GetType() == RoomType.ROOM_DUNGEON) then
 		player:MultiplyFriction(0.35)
 	end
 
@@ -84,7 +84,9 @@ function Edith:EdithJumpHandler(player)
 		target.Velocity = target.Velocity + Vector(VectorX, VectorY):Normalized():Resized(4)
 	end
 
-	target:MultiplyFriction(friction or 0.8)
+	local newfriction = (friction or 0.8) * ((IsGnawedLeafPetrified and not isJumping) and 0.6 or 1) 
+
+	target:MultiplyFriction(newfriction)
 
 	if isKeyStompPressed and not IsPlayingJumpAnim(sprite) then
 		player:PlayExtraAnimation("BigJumpUp")
@@ -112,23 +114,12 @@ end
 mod:AddCallback(ModCallbacks.MC_POST_PLAYER_UPDATE, Edith.EdithJumpHandler)
 
 ---@param player EntityPlayer
----@return boolean
-local function isNearTrapdoor(player)
+local function IsInTrapdoor(player)
 	local room = game:GetRoom()
-	local playerPos = player.Position
-	local gent, GentType
-	local bool = false
+	local grid = room:GetGridEntityFromPos(player.Position)
 
-	for i = 1, room:GetGridSize() do
-		gent = room:GetGridEntity(i)
-		if not gent then goto Break end
-		if playerPos:Distance(gent.Position) > 20 then goto Break end
-		GentType = gent:GetType()
-		bool = mod.When(GentType, tables.DisableLandFeedbackGrids, false)
-		::Break::
-	end
-	return bool
-end
+	return grid and grid:GetType() == GridEntityType.GRID_TRAPDOOR or false
+end	
 
 ---@param player EntityPlayer
 function Edith:OnStartingJump(player)
@@ -157,13 +148,15 @@ function Edith:EdithLanding(player, _, pitfall)
 		return
 	end
 
-	if isNearTrapdoor(player) == false then
+	if not IsInTrapdoor(player) then
 		mod.LandFeedbackManager(player, player.Color)
 	else
-		player:GetSprite():Play("Trapdoor")
+		JumpLib:QuitJump(player)
+		mod.RemoveEdithTarget(player)
 		return
 	end
 
+	local IsGnawedLeafPetrified = player:GetGnawedLeafTimer() >= 65
 	local CanFly = player.CanFly
 	local flightMult = {
 		Damage = CanFly == true and 1.5 or 1,
@@ -173,7 +166,7 @@ function Edith:EdithLanding(player, _, pitfall)
 	local chapter = math.ceil(level:GetStage() / 2)
 	local playerDamage = player.Damage
 	local radius = math.min((35 + ((player.TearRange / 40) - 9) * 2) * flightMult.Radius, 90)
-	local knockbackFormula = math.min(50, (16 ^ 1.2) * flightMult.Knockback) * player.ShotSpeed
+	local knockbackFormula = (math.min(50, (16 ^ 1.2) * flightMult.Knockback) * player.ShotSpeed) * (IsGnawedLeafPetrified and 1.2 or 1)
 	local coalBonus = playerData.CoalBonus or 0
 	local damageBase = 15 + (5.75 * (chapter - 1))
 	local DamageStat = playerDamage + ((playerDamage / 5.25) - 1)
@@ -181,7 +174,8 @@ function Edith:EdithLanding(player, _, pitfall)
 	local birthrightMult = mod.PlayerHasBirthright(player) and 1.25 or 1
 	local bloodClotMult = player:HasCollectible(CollectibleType.COLLECTIBLE_BLOOD_CLOT) and 1.1 or 1
 	local RawFormula = (((((damageBase + (DamageStat)) * multishotMult) * birthrightMult) * bloodClotMult) * flightMult.Damage) + coalBonus
-	local damageFormula = math.max(mod.Round(RawFormula, 2), 1)
+	
+	local damageFormula = math.max(mod.Round(RawFormula, 2), 1) * (IsGnawedLeafPetrified and 1.35 or 1)
 
 	player:PlayExtraAnimation("BigJumpFinish")
 
@@ -189,13 +183,11 @@ function Edith:EdithLanding(player, _, pitfall)
 	edithTarget:GetSprite():Play("Idle")
 
 	player:MultiplyFriction(0.05)
-	player:SetMinDamageCooldown(16)
+	player:SetMinDamageCooldown(18)
 
 	mod.RemoveEdithTarget(player)
 	playerData.IsFalling = false	
 	playerData.isJumping = false
-
-	
 end
 mod:AddCallback(JumpLib.Callbacks.ENTITY_LAND, Edith.EdithLanding, JumpParams.EdithJump)
 
@@ -208,6 +200,19 @@ function Edith:EdithOnNewRoom()
 	end
 end
 mod:AddCallback(ModCallbacks.MC_POST_NEW_ROOM, Edith.EdithOnNewRoom)
+
+---@param player EntityPlayer
+function Edith:EdithRender(player)
+	local sprite = player:GetSprite()
+	
+	if not mod.IsEdith(player) then return end
+	if not IsInTrapdoor(player) then return end
+	if not sprite:IsPlaying("Trapdoor") then return end
+	if sprite:GetFrame() ~= 8 then return end
+
+	game:StartStageTransition(false, 0, player)
+end
+mod:AddCallback(ModCallbacks.MC_PRE_PLAYER_RENDER, Edith.EdithRender)
 
 ---@param damage number
 ---@param source EntityRef
@@ -286,26 +291,3 @@ mod:AddCallback(ModCallbacks.MC_POST_FIRE_TEAR, function(_, tear)
 	if not target then return end
 	tear.Velocity = mod.ChangeVelToTarget(tear, target, player.ShotSpeed * 10)
 end)
-
-local function IsEternalHeart(pickup)
-	return pickup.Variant == PickupVariant.PICKUP_HEART and pickup.SubType == HeartSubType.HEART_ETERNAL
-end
-
--- ---@param player EntityPlayer
--- ---@param collider Entity
--- function Edith:OnPickupColl(player, collider)
--- 	local pickup = collider:ToPickup()
--- 	local sprite = player:GetSprite()
-
--- 	if not pickup then return end
-
--- 	if IsEternalHeart(pickup) then
--- 		pickup.Position = player.Position
--- 		sprite:SetFrame(11)
--- 	end
--- 	if not NonTriggerAnimPickupVar[pickup.Variant] then return end
--- 	if not sprite:IsPlaying("BigJumpFinish") then return end 
-
--- 	sprite:SetFrame(11)
--- end
--- mod:AddCallback(ModCallbacks.MC_PRE_PLAYER_COLLISION, Edith.OnPickupColl)

@@ -38,3 +38,11 @@ v1.0.5
 - Now Edith can pickup red bombs, interact with beds, open mom's chest and pickup trophies
 - Fixed Edith not triggering non-boss challenge rooms
 - Hopefully fixed Edith not being able to pick up pills when being drowsy
+
+v1.0.6
+- Increased Edith's stomp i-frames (16 > 18)
+- Fixed Edith not triggering Floor transition when going trough a womb-like trapdoor
+- New Gnawed leaf interaction (when petrified, target will be much slower, but stomp gets a damage multiplier and increased Knockback)
+- Now Edith's target will be affected by dungeon's gravity (except during beast fight)
+- Fixed Rot gut second phase sending edith either to third phase or im error room when stomping it
+- Fixed an error regarding CustomShockwaveAPI loading before it was suposed to 

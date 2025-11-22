@@ -650,6 +650,7 @@ function EdithVestige.SpawnEdithTarget(player, tainted)
 	target.DepthOffset = -100
 	target.SortingLayer = SortingLayer.SORTING_NORMAL
 	target.GridCollisionClass = GridCollisionClass.COLLISION_SOLID
+	target.EntityCollisionClass = EntityCollisionClass.ENTCOLL_PLAYERONLY
 	data(player).EdithTarget = target
 end
 

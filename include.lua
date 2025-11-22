@@ -9,11 +9,11 @@ local libs = "libs/"
 local includeFiles = {
 	-- Cosas necesarias
 	"definitions",
+	funcs .. "functions",
 	libs .. "prenpckillcallback",
-	libs .. "CustomShockwaveAPI",
 	libs .. "EdithKotryHudHelper",
 	libs .. "status_effect_library",
-	funcs .. "functions",
+	libs .. "CustomShockwaveAPI",
 
 	-- Items
 	col .. "items/Edith/SaltShaker",
